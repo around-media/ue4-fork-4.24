@@ -1481,6 +1481,8 @@ class PAKFILE_API FPakPlatformFile : public IPlatformFile
 	 */
 	bool BufferedCopyFile(IFileHandle& Dest, IFileHandle& Source, const int64 FileSize, uint8* Buffer, const int64 BufferSize) const;
 
+	//AMCHANGE_begin Making method public to read embedded bin file from pak file
+public:
 	/**
 	 * Creates file handle to read from Pak file.
 	 *
@@ -1490,6 +1492,8 @@ class PAKFILE_API FPakPlatformFile : public IPlatformFile
 	 * @return Pointer to the new handle.
 	 */
 	IFileHandle* CreatePakFileHandle(const TCHAR* Filename, FPakFile* PakFile, const FPakEntry* FileEntry);
+private:
+	//AMCHANGE_end
 
 	/**
 	* Hardcode default load ordering of game main pak -> game content -> engine content -> saved dir
