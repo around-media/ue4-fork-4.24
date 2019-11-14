@@ -284,6 +284,10 @@ extern CORE_API uint32 GScreenshotResolutionX;
 extern CORE_API uint32 GScreenshotResolutionY;
 extern CORE_API uint64 GMakeCacheIDIndex;
 
+//AMCHANGE_begin
+extern CORE_API bool GEnableTAAHistoryDuringPauseForCaptureComponent;
+//AMCHANGE_end
+
 extern CORE_API FString GEngineIni;
 
 /** Editor ini file locations - stored per engine version (shared across all projects). Migrated between versions on first run. */
