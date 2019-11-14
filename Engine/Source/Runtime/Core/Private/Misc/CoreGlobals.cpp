@@ -202,6 +202,11 @@ uint32					GScreenshotResolutionX			= 0;						/* X Resolution for high res shots
 uint32					GScreenshotResolutionY			= 0;						/* Y Resolution for high res shots */
 uint64					GMakeCacheIDIndex				= 0;						/* Cache ID */
 
+
+//AMCHANGE_begin
+bool					GEnableTAAHistoryDuringPauseForCaptureComponent = false;
+//AMCHANGE_end
+
 FString				GEngineIni;													/* Engine ini filename */
 
 /** Editor ini file locations - stored per engine version (shared across all projects). Migrated between versions on first run. */
