@@ -112,3 +112,10 @@ public:
 		FRHISamplerState** FilterOverrideArray = 0
 	);
 };
+
+
+//AMCHANGE_begin: Changes needed to 'lock' the eye adaptation exposure when creating renders
+//Return the latest exposure calculated
+//Only valid data if r.EyeAdaptation.Readback or Pre-exposure is enabled 
+RENDERER_API float GetLatestExposure();
+//AMCHANGE_end
