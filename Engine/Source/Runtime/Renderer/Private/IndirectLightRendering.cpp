@@ -126,7 +126,7 @@ void FDeferredShadingSceneRenderer::RenderDiffuseIndirectAndAmbientOcclusion(FRH
 		const bool bApplyRTGI = ShouldRenderRayTracingGlobalIllumination(View);
 		const bool bApplySSGI = ShouldRenderScreenSpaceDiffuseIndirect(View);
 		const bool bApplySSAO = SceneContext.bScreenSpaceAOIsValid;
-		const bool bApplyRTAO = ShouldRenderRayTracingAmbientOcclusion(View);
+		const bool bApplyRTAO = ShouldRenderRayTracingAmbientOcclusion(View) && Views.Num() == 1; //#dxr_todo: enable RTAO in multiview mode
 
 		int32 DenoiseMode = CVarDiffuseIndirectDenoiser.GetValueOnRenderThread();
 
@@ -145,6 +145,14 @@ void FDeferredShadingSceneRenderer::RenderDiffuseIndirectAndAmbientOcclusion(FRH
 		else if (bApplySSGI)
 		{
 			RenderScreenSpaceDiffuseIndirect(GraphBuilder, SceneTextures, SceneColor, View, /* out */ &RayTracingConfig, /* out */ &DenoiserInputs);
+
+			const IScreenSpaceDenoiser* DefaultDenoiser = IScreenSpaceDenoiser::GetDefaultDenoiser();
+			const IScreenSpaceDenoiser* DenoiserToUse = DenoiseMode == 1 ? DefaultDenoiser : GScreenSpaceDenoiser;
+
+			if (!DenoiserToUse->SupportsScreenSpaceDiffuseIndirectDenoiser(View.GetShaderPlatform()) && DenoiseMode > 0)
+			{
+				DenoiseMode = 0;
+			}
 		}
 		else
 		{

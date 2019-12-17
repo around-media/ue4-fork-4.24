@@ -1,5 +1,5 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
-// .
+// ..
 
 #include "CoreMinimal.h"
 #include "MetalShaderFormat.h"
@@ -2836,7 +2836,7 @@ bool FinalizeLibrary_Metal(FName const& Format, FString const& WorkingDir, FStri
 					RemoteLibPath = OriginalRemoteLibPath + FString::Printf(TEXT(".%x%x%x%x"), Guid.A, Guid.B, Guid.C, Guid.D);
 				}
 			
-				Params = FString::Printf(TEXT("-o=\"%s\" \"%s\""), *RemoteLibPath, *ArchivePath);
+				Params = FString::Printf(TEXT("-o \"%s\" \"%s\""), *RemoteLibPath, *ArchivePath);
 				ReturnCode = 0;
 				Results = TEXT("");
 				Errors = TEXT("");

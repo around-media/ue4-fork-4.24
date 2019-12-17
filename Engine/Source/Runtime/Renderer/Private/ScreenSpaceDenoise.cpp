@@ -679,7 +679,7 @@ bool ShouldCompileSignalPipeline(ESignalProcessing SignalProcessing, EShaderPlat
 {
 	if (SignalProcessing == ESignalProcessing::ScreenSpaceDiffuseIndirect)
 	{
-		return Platform == SP_PCD3D_SM5 || Platform == SP_PS4;
+		return Platform == SP_PCD3D_SM5 || Platform == SP_PS4 || Platform == SP_XBOXONE_D3D12;
 	}
 	else if (
 		SignalProcessing == ESignalProcessing::Reflections ||
@@ -712,6 +712,7 @@ BEGIN_SHADER_PARAMETER_STRUCT(FSSDCommonParameters, )
 	SHADER_PARAMETER(float, WorldDepthToPixelWorldRadius)
 	SHADER_PARAMETER(FVector4, BufferUVToScreenPosition)
 	SHADER_PARAMETER(FMatrix, ScreenToView)
+	SHADER_PARAMETER(FVector2D, BufferUVBilinearCorrection)
 
 	SHADER_PARAMETER_STRUCT_INCLUDE(FSceneTextureParameters, SceneTextures)
 
@@ -1441,6 +1442,9 @@ static void DenoiseSignalAtConstantPixelDensity(
 			FPlane(0, 0, View.ProjectionMatrixUnadjustedForRHI.M[2][2], 1),
 			FPlane(0, 0, View.ProjectionMatrixUnadjustedForRHI.M[3][2], 0))
 			* View.ViewMatrices.GetInvProjectionMatrix();
+
+		CommonParameters.BufferUVBilinearCorrection.X = (0.5f * PixelPositionToFullResPixel - FullResPixelOffset.X) / float(FullResBufferExtent.X);
+		CommonParameters.BufferUVBilinearCorrection.Y = (0.5f * PixelPositionToFullResPixel - FullResPixelOffset.Y) / float(FullResBufferExtent.Y);
 	}
 
 	#if RHI_RAYTRACING
@@ -2544,13 +2548,18 @@ public:
 		return GlobalIlluminationOutputs;
 	}
 
+	bool SupportsScreenSpaceDiffuseIndirectDenoiser(EShaderPlatform Platform) const override
+	{
+		return ShouldCompileSignalPipeline(ESignalProcessing::ScreenSpaceDiffuseIndirect, Platform);
+	}
+
 	FDiffuseIndirectOutputs DenoiseScreenSpaceDiffuseIndirect(
 		FRDGBuilder& GraphBuilder,
 		const FViewInfo& View,
 		FPreviousViewInfo* PreviousViewInfos,
 		const FSceneTextureParameters& SceneTextures,
 		const FDiffuseIndirectInputs& Inputs,
-		const FAmbientOcclusionRayTracingConfig Config) const
+		const FAmbientOcclusionRayTracingConfig Config) const override
 	{
 		RDG_GPU_STAT_SCOPE(GraphBuilder, DiffuseIndirectDenoiser);
 
@@ -2582,6 +2591,7 @@ public:
 
 		FDiffuseIndirectOutputs GlobalIlluminationOutputs;
 		GlobalIlluminationOutputs.Color = SignalOutput.Textures[0];
+		GlobalIlluminationOutputs.AmbientOcclusionMask = SignalOutput.Textures[1];
 		return GlobalIlluminationOutputs;
 	}
 }; // class FDefaultScreenSpaceDenoiser

@@ -5202,6 +5202,7 @@ bool UStaticMesh::BuildFromMeshDescriptions(const TArray<const FMeshDescription*
 	// Set up
 
 	bIsBuiltAtRuntime = true;
+	NeverStream = true;
 
 	TOptional<FStaticMeshComponentRecreateRenderStateContext> RecreateRenderStateContext;
 	
@@ -5234,6 +5235,17 @@ bool UStaticMesh::BuildFromMeshDescriptions(const TArray<const FMeshDescription*
 
 		BuildFromMeshDescription(*MeshDescriptionPtr, LODResources);
 
+#if WITH_EDITOR
+		for (int32 SectionIndex = 0; SectionIndex < LODResources.Sections.Num(); SectionIndex++)
+		{
+			const FStaticMeshSection& StaticMeshSection = LODResources.Sections[SectionIndex];
+			FMeshSectionInfo SectionInfo;
+			SectionInfo.MaterialIndex = StaticMeshSection.MaterialIndex;
+			SectionInfo.bEnableCollision = StaticMeshSection.bEnableCollision;
+			SectionInfo.bCastShadow = StaticMeshSection.bCastShadow;
+			GetSectionInfoMap().Set(LODIndex, SectionIndex, SectionInfo);
+		}
+#endif
 		LODIndex++;
 	}
 
@@ -5603,6 +5615,18 @@ bool UStaticMesh::GetPhysicsTriMeshData(struct FTriMeshCollisionData* CollisionD
 	{
 		return ComplexCollisionMesh->GetPhysicsTriMeshData(CollisionData, bInUseAllTriData);
 	}
+#else // #if WITH_EDITORONLY_DATA
+	// the static mesh needs to be tagged for CPUAccess in order to access TriMeshData in runtime mode : 
+	if (!bAllowCPUAccess)
+	{
+		UE_LOG(LogStaticMesh, Warning, TEXT("UStaticMesh::GetPhysicsTriMeshData: Triangle data from '%s' cannot be accessed at runtime on a mesh that isn't flagged as Allow CPU Access. This asset needs to be flagged as such (in the Advanced section)."), *GetFullName());
+		return false;
+	}
+
+	// without editor data, we can't selectively generate a physics mesh for a given LOD index (we're missing access to GetSectionInfoMap()) so force bInUseAllTriData in order to use LOD index 0
+	bInUseAllTriData = true;
+#endif // #if !WITH_EDITORONLY_DATA
+
 	check(HasValidRenderData());
 
 	// Get the LOD level to use for collision
@@ -5610,6 +5634,7 @@ bool UStaticMesh::GetPhysicsTriMeshData(struct FTriMeshCollisionData* CollisionD
 	const int32 UseLODIndex = bInUseAllTriData ? 0 : FMath::Clamp(LODForCollision, 0, RenderData->LODResources.Num()-1);
 
 	FStaticMeshLODResources& LOD = RenderData->LODResources[UseLODIndex];
+
 	FIndexArrayView Indices = LOD.IndexBuffer.GetArrayView();
 
 	TMap<int32, int32> MeshToCollisionVertMap; // map of static mesh verts to collision verts
@@ -5626,7 +5651,12 @@ bool UStaticMesh::GetPhysicsTriMeshData(struct FTriMeshCollisionData* CollisionD
 	{
 		const FStaticMeshSection& Section = LOD.Sections[SectionIndex];
 
-		if (bInUseAllTriData || GetSectionInfoMap().Get(UseLODIndex,SectionIndex).bEnableCollision)
+#if WITH_EDITORONLY_DATA
+		// we can only use GetSectionInfoMap() in WITH_EDITORONLY_DATA mode, otherwise, assume bInUseAllTriData :
+		if (bInUseAllTriData || GetSectionInfoMap().Get(UseLODIndex, SectionIndex).bEnableCollision)
+#else // #if WITH_EDITORONLY_DATA
+		check(bInUseAllTriData && bAllowCPUAccess);
+#endif // #if !WITH_EDITORONLY_DATA
 		{
 			const uint32 OnePastLastIndex  = Section.FirstIndex + Section.NumTriangles*3;
 
@@ -5647,9 +5677,6 @@ bool UStaticMesh::GetPhysicsTriMeshData(struct FTriMeshCollisionData* CollisionD
 	// We only have a valid TriMesh if the CollisionData has vertices AND indices. For meshes with disabled section collision, it
 	// can happen that the indices will be empty, in which case we do not want to consider that as valid trimesh data
 	return CollisionData->Vertices.Num() > 0 && CollisionData->Indices.Num() > 0;
-#else // #if WITH_EDITORONLY_DATA
-	return false;
-#endif // #if WITH_EDITORONLY_DATA
 }
 
 bool UStaticMesh::ContainsPhysicsTriMeshData(bool bInUseAllTriData) const 
@@ -5659,6 +5686,11 @@ bool UStaticMesh::ContainsPhysicsTriMeshData(bool bInUseAllTriData) const
 	{
 		return ComplexCollisionMesh->ContainsPhysicsTriMeshData(bInUseAllTriData);
 	}
+#else // #if WITH_EDITORONLY_DATA
+	// without editor data, we can't selectively generate a physics mesh for a given LOD index (we're missing access to GetSectionInfoMap()) so force bInUseAllTriData in order to use LOD index 0
+	bInUseAllTriData = true;
+#endif // #if !WITH_EDITORONLY_DATA
+	
 	if(RenderData == nullptr || RenderData->LODResources.Num() == 0)
 	{
 		return false;
@@ -5675,16 +5707,18 @@ bool UStaticMesh::ContainsPhysicsTriMeshData(bool bInUseAllTriData) const
 		for (int32 SectionIndex = 0; SectionIndex < LOD.Sections.Num(); ++SectionIndex)
 		{
 			const FStaticMeshSection& Section = LOD.Sections[SectionIndex];
+#if WITH_EDITORONLY_DATA
+			// we can only use GetSectionInfoMap() in WITH_EDITORONLY_DATA mode, otherwise, assume bInUseAllTriData :
 			if ((bInUseAllTriData || GetSectionInfoMap().Get(UseLODIndex, SectionIndex).bEnableCollision) && Section.NumTriangles > 0)
 			{
 				return true;
 			}
+#else // #if WITH_EDITORONLY_DATA
+			return true;
+#endif // #if WITH_EDITORONLY_DATA
 		}
 	}
 	return false; 
-#else // #if WITH_EDITORONLY_DATA
-	return false;
-#endif // #if WITH_EDITORONLY_DATA
 }
 
 void UStaticMesh::GetMeshId(FString& OutMeshId)
@@ -5915,9 +5949,12 @@ void UStaticMesh::EnforceLightmapRestrictions(bool bUseRenderData)
 	int32 NumUVs = 4;
 
 #if !WITH_EDITORONLY_DATA
-	//The source models are only available in the editor, fallback on the render data.
-	UE_ASSET_LOG(LogStaticMesh, Warning, this, TEXT("Trying to enforce lightmap restrictions using the static mesh SourceModels outside of the Editor."))
-	bUseRenderData = true;
+	if (!bUseRenderData)
+	{
+		//The source models are only available in the editor, fallback on the render data.
+		UE_ASSET_LOG(LogStaticMesh, Warning, this, TEXT("Trying to enforce lightmap restrictions using the static mesh SourceModels outside of the Editor."))
+		bUseRenderData = true;
+	}
 #endif //WITH_EDITORONLY_DATA
 
 	if (bUseRenderData)
@@ -5955,7 +5992,7 @@ void UStaticMesh::EnforceLightmapRestrictions(bool bUseRenderData)
 
 					if (SourceModel.BuildSettings.bGenerateLightmapUVs)
 					{
-						NumChannelsInLOD = FMath::Max(NumChannelsInLOD, SourceModel.BuildSettings.DstLightmapIndex);
+						NumChannelsInLOD = FMath::Max(NumChannelsInLOD, SourceModel.BuildSettings.DstLightmapIndex + 1);
 					}
 
 					NumUVs = FMath::Min(NumChannelsInLOD, NumUVs);
@@ -6251,6 +6288,11 @@ UMaterialInterface* UStaticMesh::GetMaterial(int32 MaterialIndex) const
 
 FName UStaticMesh::AddMaterial(UMaterialInterface* Material)
 {
+	if (Material == nullptr)
+	{
+		return NAME_None;
+	}
+
 	// Create a unique slot name for the material
 	FName MaterialName = Material->GetFName();
 	for (const FStaticMaterial& StaticMaterial : StaticMaterials)

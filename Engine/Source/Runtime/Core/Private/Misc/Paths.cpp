@@ -1442,6 +1442,26 @@ bool FPaths::IsSamePath(const FString& PathA, const FString& PathB)
 #endif
 }
 
+bool FPaths::IsUnderDirectory(const FString& InPath, const FString& InDirectory)
+{
+	FString Path = FPaths::ConvertRelativePathToFull(InPath);
+
+	FString Directory = FPaths::ConvertRelativePathToFull(InDirectory);
+	if (Directory.EndsWith(TEXT("/")))
+	{
+		Directory.RemoveAt(Directory.Len() - 1);
+	}
+
+#if PLATFORM_WINDOWS || PLATFORM_XBOXONE || PLATFORM_HOLOLENS
+	int Compare = FCString::Strnicmp(*Path, *Directory, Directory.Len());
+#else
+	int Compare = FCString::Strncmp(*Path, *Directory, Directory.Len());
+#endif
+
+	return Compare == 0 && (Path[Directory.Len()] == 0 || Path[Directory.Len()] == '/');
+}
+
+
 void FPaths::TearDown()
 {
 	TLazySingleton<FStaticData>::TearDown();

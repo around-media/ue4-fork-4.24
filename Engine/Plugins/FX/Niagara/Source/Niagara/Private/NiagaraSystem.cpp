@@ -16,6 +16,8 @@
 #include "NiagaraStats.h"
 #include "NiagaraEditorDataBase.h"
 #include "INiagaraEditorOnlyDataUtlities.h"
+#include "NiagaraWorldManager.h"
+#include "NiagaraEmitterInstanceBatcher.h"
 
 #if WITH_EDITOR
 #include "NiagaraScriptDerivedData.h"
@@ -62,6 +64,7 @@ UNiagaraSystem::UNiagaraSystem(const FObjectInitializer& ObjectInitializer)
 void UNiagaraSystem::BeginDestroy()
 {
 	Super::BeginDestroy();
+
 #if WITH_EDITORONLY_DATA
 	while (ActiveCompilations.Num() > 0)
 	{

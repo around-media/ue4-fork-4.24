@@ -258,6 +258,7 @@ void PopulateSimulatedParticle(
 		TEXT("Inertia tensor is too small. Too late to change"));
 
 	Handle->SetM(MassIn);
+	Handle->SetInvM(1.0f / MassIn);
 	//Particles.M(RigidBodyIndex) = MassIn;
 	if (FMath::IsNaN(InertiaTensorVec[0]) || FMath::IsNaN(InertiaTensorVec[1]) || FMath::IsNaN(InertiaTensorVec[2]) ||
 		InertiaTensorVec[0] < SMALL_NUMBER || InertiaTensorVec[1] < SMALL_NUMBER || InertiaTensorVec[2] < SMALL_NUMBER)
@@ -268,6 +269,7 @@ void PopulateSimulatedParticle(
 	else
 	{
 		Handle->SetI(Chaos::PMatrix<float, 3, 3>(InertiaTensorVec[0], InertiaTensorVec[1], InertiaTensorVec[2]));
+		Handle->SetInvI(Chaos::PMatrix<float, 3, 3>(1.0f / InertiaTensorVec[0], 1.0f / InertiaTensorVec[1], 1.0f / InertiaTensorVec[2]));
 		//Particles.I(RigidBodyIndex) = Chaos::PMatrix<float, 3, 3>(InertiaTensorVec[0], InertiaTensorVec[1], InertiaTensorVec[2]);
 	}
 
@@ -564,7 +566,7 @@ void FGeometryCollectionPhysicsProxy::InitializeBodiesGT()
 		GeometryCollectionAlgo::GlobalMatrices(DynamicCollection->Transform, DynamicCollection->Parent, Transform);
 		check(DynamicCollection->Transform.Num() == Transform.Num());
 
-		NumParticles = SimulatableParticles.Count(true);
+		NumParticles = SimulatableParticles.Num();
 		BaseParticleIndex = 0; // Are we always zero indexed now?
 
 		// Create game thread particles...
@@ -584,8 +586,9 @@ void FGeometryCollectionPhysicsProxy::InitializeBodiesGT()
 //				{
 //					check(false); // continue?
 //				}
-				GTParticle->SetX(Transform[Idx].GetTranslation());
-				GTParticle->SetR(Transform[Idx].GetRotation());
+				FTransform ParticleTransform = MassToLocal[Idx] * Transform[Idx] * Parameters.WorldTransform;
+				GTParticle->SetX(ParticleTransform.GetTranslation());
+				GTParticle->SetR(ParticleTransform.GetRotation());
 				//...
 				GTParticle->Proxy = this; // I feel dirty.
 			}
@@ -663,8 +666,7 @@ void FGeometryCollectionPhysicsProxy::InitializeBodiesPT(
 			if (Chaos::TPBDRigidParticleHandle<float, 3>* Handle = SolverParticleHandles[TransformGroupIndex])
 			{
 				//const int32 RigidBodyIndex = RigidBodyID[TransformGroupIndex];
-				const FTransform WorldTransform = 
-					MassToLocal[TransformGroupIndex] * Transform[TransformGroupIndex] * Parameters.WorldTransform;
+				const FTransform WorldTransform = MassToLocal[TransformGroupIndex] * Transform[TransformGroupIndex] * Parameters.WorldTransform;
 
 				PopulateSimulatedParticle(
 					Handle,
@@ -681,7 +683,7 @@ void FGeometryCollectionPhysicsProxy::InitializeBodiesPT(
 #endif // TODO_REIMPLEMENT_SOLVER_SETTINGS_ACCESSORS
 					//RigidBodyIndex, 
 					WorldTransform, 
-					(uint8)EObjectStateTypeEnum::Chaos_Object_Dynamic, 
+					(uint8)Parameters.ObjectType, 
 					CollisionGroup[TransformGroupIndex]);
 
 #if TODO_REIMPLEMENT_RIGID_CLUSTERING
@@ -706,6 +708,9 @@ void FGeometryCollectionPhysicsProxy::InitializeBodiesPT(
 				//GetSolver()->SetPhysicsMaterial(RigidBodyIndex, Parameters.PhysicalMaterial);
 			}
 		});
+
+		// After population, the states of each particle could have changed
+		Particles.UpdateGeometryCollectionViews();
 
 #if TODO_REIMPLEMENT_INIT_COMMANDS
 		for (FFieldSystemCommand& Cmd : Parameters.InitializationCommands)
@@ -3748,7 +3753,11 @@ Chaos::FParticleData* FGeometryCollectionPhysicsProxy::NewData()
 	// proxies get away with that because they're dealing with a low number of 
 	// bodies; which is not the case here. Rather, let's just use a triple buffer.
 
-	check(NumParticles != INDEX_NONE); // Make sure InitBodiesGT() has been called!
+	if (!Parameters.Simulating || 
+		!ensure(NumParticles != INDEX_NONE)) // Make sure InitBodiesGT() has been called!
+	{
+		return nullptr;
+	}
 
 	FGeometryCollectionResults& Buffer = *GameToPhysInterchange->AccessProducerBuffer();
 	if (Buffer.NumParticlesAdded != NumParticles)
@@ -3826,7 +3835,7 @@ void FGeometryCollectionPhysicsProxy::PushToPhysicsState(const Chaos::FParticleD
 		// probably a bug, as the interface code is assuming it needs to lock
 		// to prevent stomping on a double buffer.  We should look into doing 
 		// away with that lock, but for the time being, we'll assert:
-		check(false);
+		ensure(false);
 		return;
 	}
 	
@@ -3839,10 +3848,19 @@ void FGeometryCollectionPhysicsProxy::PushToPhysicsState(const Chaos::FParticleD
 		if (Chaos::TPBDRigidParticleHandle<float, 3>* Handle = SolverParticleHandles[HandleIdx])
 		{
 			const int32 Idx = GState->BaseIndex + HandleIdx;
-			Handle->SetX(GState->Transforms[Idx].GetTranslation());
-			Handle->SetR(GState->Transforms[Idx].GetRotation());
+
+			FTransform ParticleTransform = GState->Transforms[Idx] * Parameters.WorldTransform;
+			Handle->SetX(ParticleTransform.GetTranslation());
+			Handle->SetR(ParticleTransform.GetRotation());
 			Handle->SetDisabled(GState->DisabledStates[Idx]);
 			//...
+
+			if(Handle->Geometry() && Handle->Geometry()->HasBoundingBox())
+			{
+				Handle->SetHasBounds(true);
+				Handle->SetLocalBounds(Handle->Geometry()->BoundingBox());
+				Handle->SetWorldSpaceInflatedBounds(Handle->Geometry()->BoundingBox().TransformedBox(Chaos::TRigidTransform<float, 3>(ParticleTransform)));
+			}
 		}
 	}
 }
@@ -3920,7 +3938,21 @@ void FGeometryCollectionPhysicsProxy::BufferPhysicsResults()
 		TargetResults.DisabledStates.SetNumUninitialized(NumParticles);
 		for (int32 Idx = 0; Idx < NumParticles; Idx++)
 		{
-			TargetResults.DisabledStates[Idx] = SolverParticleHandles[Idx]->Disabled();
+			if(!SolverParticleHandles[Idx])
+			{
+				TargetResults.DisabledStates[Idx] = true;
+				continue;
+			}
+
+			if(SolverParticleHandles[Idx]->Disabled())
+			{
+				TargetResults.DisabledStates[Idx] = true;
+			}
+			else
+			{
+				TargetResults.DisabledStates[Idx] = false;
+				IsObjectDynamic = true;
+			}
 		}
 		//TargetResults.DisabledStates.Append(&Particles.DisabledRef(BaseParticleIndex), NumParticles);
 	}
@@ -3951,6 +3983,11 @@ void FGeometryCollectionPhysicsProxy::BufferPhysicsResults()
 			//only update roots and first children
 			const int32 ParticleIndex = BaseParticleIndex + TransformIndex;
 //			const int32 ParentIndex = ClusterID[ParticleIndex].Id;
+
+			if(!SolverParticleHandles[ParticleIndex])
+			{
+				continue;
+			}
 
 			Chaos::TPBDRigidParticleHandle<float, 3>& Handle = *SolverParticleHandles[ParticleIndex];
 
@@ -4034,13 +4071,17 @@ void FGeometryCollectionPhysicsProxy::PullFromPhysicsState()
 /**/
 	// We should never be changing the number of entries, this would break other 
 	// attributes in the transform group.
-	if (ensure(GTDynamicCollection->Transform.Num() == TR.Transforms.Num()))	
+	const int32 NumTransforms = GTDynamicCollection->Transform.Num();
+	if (ensure(NumTransforms == TR.Transforms.Num()))	
 	{
-		GTDynamicCollection->Transform.ExchangeArrays(TR.Transforms);
-//		GTDynamicCollection->Parent.ExchangeArrays(TR.Parent);
-//		GTDynamicCollection->Children.ExchangeArrays(TR.Children);
-//		GTDynamicCollection->SimulationType.ExchangeArrays(TR.SimulationType);
-//		GTDynamicCollection->StatusFlags.ExchangeArrays(TR.StatusFlags);
+		for(int32 TmIndex = 0; TmIndex < NumTransforms; ++TmIndex)
+		{
+			if(!TR.DisabledStates[TmIndex])
+			{
+				GTDynamicCollection->Transform[TmIndex] = MassToLocal[TmIndex].GetRelativeTransformReverse(TR.Transforms[TmIndex]).GetRelativeTransform(Parameters.WorldTransform);
+				GTDynamicCollection->Transform[TmIndex].NormalizeRotation();
+			}
+		}
 
 		//question: why do we need this? Sleeping objects will always have to update GPU
 		GTDynamicCollection->MakeDirty();

@@ -1610,8 +1610,7 @@ bool UCookOnTheFlyServer::StartNetworkFileServer( const bool BindAnyPort )
 		NetworkFileServers.Add(TcpFileServer);
 	}
 
-	// cookonthefly server for html5 -- NOTE: if this is crashing COTF servers, please ask for Nick.Shin (via Josh.Adams)
-#if 1
+#if 0 // cookonthefly server via http
 	INetworkFileServer *HttpFileServer = FModuleManager::LoadModuleChecked<INetworkFileSystemModule>("NetworkFileSystem")
 		.CreateNetworkFileServer(true, BindAnyPort ? 0 : -1, NetworkFileDelegateContainer, ENetworkFileServerProtocol::NFSP_Http);
 	if ( HttpFileServer )
@@ -5452,6 +5451,24 @@ void UCookOnTheFlyServer::GenerateAssetRegistry()
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
 	AssetRegistry = &AssetRegistryModule.Get();
 
+	// Mark package as dirty for the last ones saved
+	if(PackageNameCache != nullptr)
+	{
+		for (FName AssetFilename : ModifiedAssetFilenames)
+		{
+			const FString AssetPathOnDisk = AssetFilename.ToString();
+			if(FPaths::FileExists(AssetPathOnDisk))
+			{
+				const FString PackageName = FPackageName::FilenameToLongPackageName(AssetPathOnDisk);
+				FSoftObjectPath SoftPackage(PackageName);
+				if(UPackage* Package = Cast<UPackage>(SoftPackage.ResolveObject()))
+				{
+					MarkPackageDirtyForCooker( Package );
+				}
+			}
+		}
+	}
+
 	if (!!(CookFlags & ECookInitializationFlags::GeneratedAssetRegistry))
 	{
 		// Force a rescan of modified package files
@@ -5464,8 +5481,6 @@ void UCookOnTheFlyServer::GenerateAssetRegistry()
 
 		AssetRegistry->ScanModifiedAssetFiles(ModifiedPackageFileList);
 
-		ModifiedAssetFilenames.Reset();
-
 		// This is cook in the editor on a second pass, so refresh the generators
 		for (TPair<FName, FAssetRegistryGenerator*>& Pair : RegistryGenerators)
 		{
@@ -5474,6 +5489,8 @@ void UCookOnTheFlyServer::GenerateAssetRegistry()
 		return;
 	}
 	CookFlags |= ECookInitializationFlags::GeneratedAssetRegistry;
+
+	ModifiedAssetFilenames.Reset();
 
 	double GenerateAssetRegistryTime = 0.0;
 	{

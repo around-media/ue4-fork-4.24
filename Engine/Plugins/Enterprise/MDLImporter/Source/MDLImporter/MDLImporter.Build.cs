@@ -3,6 +3,7 @@
 using UnrealBuildTool;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace UnrealBuildTool.Rules
 {
@@ -44,27 +45,48 @@ namespace UnrealBuildTool.Rules
                 }
             );
 
-            string MdlSdkModuleName = "libmdl_sdk.so";
-            
+            List<string> RuntimeModuleNames = new List<string>();
+            string BinaryLibraryFolder = Path.Combine(EngineDirectory, "Plugins/Enterprise/MDLImporter/Binaries/ThirdParty/MDL", Target.Platform.ToString());
+
             if (Target.Platform == UnrealTargetPlatform.Win64)
             {
-                MdlSdkModuleName = "libmdl_sdk.dll";
+				RuntimeModuleNames.Add("libmdl_sdk.dll");
+				RuntimeModuleNames.Add("nv_freeimage.dll");
+                    
+                foreach (string RuntimeModuleName in RuntimeModuleNames)
+                {
+                    string ModulePath = Path.Combine(BinaryLibraryFolder, RuntimeModuleName);
+                    if (!File.Exists(ModulePath))
+                    {
+                        string Err = string.Format("MDL SDK module '{0}' not found.", ModulePath);
+                        System.Console.WriteLine(Err);
+                        throw new BuildException(Err);
+                    }
 
+                    PublicDelayLoadDLLs.Add(RuntimeModuleName);
+                    RuntimeDependencies.Add(ModulePath);
+                }
             }
-            else
+            else if (Target.Platform == UnrealTargetPlatform.Mac)
             {
-				MdlSdkModuleName = "libmdl_sdk.so";
-            }
+                RuntimeModuleNames.Add("libmdl_sdk.so");
+                RuntimeModuleNames.Add("nv_freeimage.so");
+                RuntimeModuleNames.Add("dds.so");
 
-            PublicDelayLoadDLLs.Add(MdlSdkModuleName);
-            string ModulePath = Path.Combine(EngineDirectory, "Plugins/Enterprise/MDLImporter/Binaries/ThirdParty/MDL", Target.Platform.ToString(), MdlSdkModuleName);
-            if (!File.Exists(ModulePath))
-            {
-                string Err = string.Format("MDL SDK module '{0}' not found.", ModulePath);
-                System.Console.WriteLine(Err);
-                throw new BuildException(Err);
+                foreach (string RuntimeModuleName in RuntimeModuleNames)
+                {
+                    string ModulePath = Path.Combine(BinaryLibraryFolder, RuntimeModuleName);
+                    if (!File.Exists(ModulePath))
+                    {
+                        string Err = string.Format("MDL SDK module '{0}' not found.", ModulePath);
+                        System.Console.WriteLine(Err);
+                        throw new BuildException(Err);
+                    }
+
+                    PublicDelayLoadDLLs.Add(ModulePath);
+                    RuntimeDependencies.Add(ModulePath);
+                }
             }
-            RuntimeDependencies.Add(ModulePath);
 
             if (Directory.Exists(ThirdPartyPath))
             {

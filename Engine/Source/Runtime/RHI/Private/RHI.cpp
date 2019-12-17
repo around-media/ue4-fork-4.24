@@ -693,7 +693,6 @@ static FName NAME_PLATFORM_IOS(TEXT("IOS"));
 static FName NAME_PLATFORM_MAC(TEXT("Mac"));
 static FName NAME_PLATFORM_SWITCH(TEXT("Switch"));
 static FName NAME_PLATFORM_TVOS(TEXT("TVOS"));
-static FName NAME_PLATFORM_HTML5(TEXT("HTML5"));
 static FName NAME_PLATFORM_LUMIN(TEXT("Lumin"));
 
 // @todo platplug: This is still here, only being used now by UMaterialShaderQualitySettings::GetOrCreatePlatformSettings
@@ -723,7 +722,7 @@ FName ShaderPlatformToPlatformName(EShaderPlatform Platform)
 	case SP_OPENGL_ES3_1_ANDROID:
 		return NAME_PLATFORM_ANDROID;
 	case SP_OPENGL_ES2_WEBGL:
-		return NAME_PLATFORM_HTML5;
+		return FName(TEXT(PREPROCESSOR_TO_STRING(PLATFORM_HEADER_NAME))); // WIP: platform extension magic
 	case SP_METAL:
 	case SP_METAL_MRT:
 		return NAME_PLATFORM_IOS;
@@ -862,7 +861,7 @@ RHI_API bool RHISupportsTessellation(const EShaderPlatform Platform)
 {
 	if (IsFeatureLevelSupported(Platform, ERHIFeatureLevel::SM5))
 	{
-		return (Platform == SP_PCD3D_SM5) || (Platform == SP_XBOXONE_D3D12) || (Platform == SP_OPENGL_SM5) || (Platform == SP_OPENGL_ES31_EXT) || (Platform == SP_METAL_SM5) || (IsVulkanSM5Platform(Platform));
+		return (Platform == SP_PCD3D_SM5) || (Platform == SP_XBOXONE_D3D12) || (Platform == SP_OPENGL_SM5) || (Platform == SP_OPENGL_ES31_EXT) /*|| (Platform == SP_METAL_SM5)*/ || (IsVulkanSM5Platform(Platform));
 	}
 	return false;
 }
