@@ -1,0 +1,1 @@
+call "Engine/Build/BatchFiles/RunUAT.bat" BuildGraph -Script=BuildGraphInstalledEngineBuildCustom.xml -Target="Make Installed Build Win64" -set:HostPlatformOnly=true -set:WithFullDebugInfo=true -set:Archive=true -set:WithDDC=false
