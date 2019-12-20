@@ -93,12 +93,15 @@ FString FAutomationTestFramework::GetUserAutomationDirectory() const
 
 bool FAutomationTestFramework::RegisterAutomationTest( const FString& InTestNameToRegister, class FAutomationTestBase* InTestToRegister )
 {
-	const bool bAlreadyRegistered = AutomationTestClassNameToInstanceMap.Contains( InTestNameToRegister );
-	if ( !bAlreadyRegistered )
-	{
-		AutomationTestClassNameToInstanceMap.Add( InTestNameToRegister, InTestToRegister );
-	}
-	return !bAlreadyRegistered;
+	// AMCHANGE_begin
+	//#AMCHANGE Fix to allow hot-reloading automation tests.
+	// AutomationTestClassNameToInstanceMap is a TMap, which means that the 'Add' method will either:
+	// 1) Add the test to the map if it is not registered yet
+	// 2) Replace the registered test if it is already registered
+	// We changed this to make sure hot reloaded test will be updated.
+	AutomationTestClassNameToInstanceMap.Add(InTestNameToRegister, InTestToRegister);
+	return true;
+	// AMCHANGE_end
 }
 
 bool FAutomationTestFramework::UnregisterAutomationTest( const FString& InTestNameToUnregister )
