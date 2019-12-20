@@ -2846,7 +2846,16 @@ bool FLinkerLoad::VerifyImportInner(const int32 ImportIndex, FString& WarningSuf
 
 			// we now fully load the package that we need a single export from - however, we still use CreatePackage below as it handles all cases when the package
 			// didn't exist (native only), etc		
+			//AMCHANGE_begin
+			//#AMCHANGE if the references of a package are not loaded when calling StreamableManager.AsyncLoad, the LoadPackageInternal crashes. So we check if we are on the game thread, otherwise return false
+			if (IsInGameThread()) {
 			TmpPkg = LoadPackageInternal(NULL, *Import.ObjectName.ToString(), InternalLoadFlags | LOAD_IsVerifying, this, nullptr, GetSerializeContext());
+			}
+			else {
+				return false;
+				
+			}
+			//AMCHANGE_end
 		}
 
 #if WITH_EDITOR
