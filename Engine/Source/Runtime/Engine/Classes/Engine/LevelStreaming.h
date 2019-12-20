@@ -173,13 +173,11 @@ public:
 	UPROPERTY(Category=LevelStreaming, BlueprintSetter=SetShouldBeVisible)
 	uint8 bShouldBeVisible:1;
 
-//AMCHANGE_end
-
-
-protected:
 	/** Whether the level should be loaded																						*/
 	UPROPERTY(Category=LevelStreaming, BlueprintSetter=SetShouldBeLoaded, BlueprintGetter=ShouldBeLoaded)
 	uint8 bShouldBeLoaded:1;
+
+	//AMCHANGE_end
 
 public:
 
