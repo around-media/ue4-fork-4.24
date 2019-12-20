@@ -646,6 +646,21 @@ TRefCountPtr<IPooledRenderTarget>& FSceneViewState::FEyeAdaptationRTManager::Get
 	return PooledRenderTarget[BufferNumber];
 }
 
+//AMCHANGE_begin
+//#AMCHANGE Changes needed to 'lock' the eye adaptation exposure when creating renders
+TAutoConsoleVariable<int> CVarEyeAdaptationReadback(
+	TEXT("r.EyeAdaptation.Readback"),
+	1,
+	TEXT("If enabled, always read back the latest exposure value (not only when pre-exposure is enabled)"),
+	ECVF_RenderThreadSafe);
+
+float GLastExposure = 0;
+float GetLatestExposure()
+{
+	return GLastExposure;
+}
+//AMCHANGE_end
+
 void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 {
 	const FSceneViewFamily& ViewFamily = *View.Family;
@@ -677,29 +692,41 @@ void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 			PreExposure = GetEyeAdaptationFixedExposure(View);
 		}
 	}
-	else if (bIsPreExposureRelevant)
-	{
-		if (UsePreExposure(View.GetShaderPlatform()))
-		{
-			const float PreExposureOverride = CVarEyeAdaptationPreExposureOverride.GetValueOnRenderThread();
-			const float LastExposure = View.GetLastEyeAdaptationExposure();
-			if (PreExposureOverride > 0)
-			{
-				PreExposure = PreExposureOverride;
-			}
-			else if (LastExposure > 0)
-			{
-				PreExposure = LastExposure;
-			}
+	//AMCHANGE_begin: 
+	//#AMCHANGE Changes needed to 'lock' the eye adaptation exposure when creating renders
 
-			bUpdateLastExposure = true;
-		}
-		// The exposure compensation curves require the scene average luminance
-		else if (View.FinalPostProcessSettings.AutoExposureBiasCurve)
+	else
+	{
+
+
+		if (bIsPreExposureRelevant)
 		{
-			bUpdateLastExposure = true;
+			if (UsePreExposure(View.GetShaderPlatform())
+				|| CVarEyeAdaptationReadback->GetInt() != 0
+				)
+			{
+				const float PreExposureOverride = CVarEyeAdaptationPreExposureOverride.GetValueOnRenderThread();
+				const float LastExposure = View.GetLastEyeAdaptationExposure();
+				if (PreExposureOverride > 0)
+				{
+					PreExposure = PreExposureOverride;
+				}
+				else if (LastExposure > 0)
+				{
+					PreExposure = LastExposure;
+				}
+
+				bUpdateLastExposure = true;
+			}
+			// The exposure compensation curves require the scene average luminance
+			else if (View.FinalPostProcessSettings.AutoExposureBiasCurve)
+			{
+				bUpdateLastExposure = true;
+			}
+			GLastExposure = LastExposure;
 		}
 	}
+	//AMCHANGE_end
 
 	// Update the pre-exposure value on the actual view
 	View.PreExposure = PreExposure;
