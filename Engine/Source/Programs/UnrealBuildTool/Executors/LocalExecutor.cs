@@ -141,7 +141,9 @@ namespace UnrealBuildTool
 					{
 						try
 						{
-							ActionProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
+							//AMCHANGE_begin Optimize compile times
+							ActionProcess.PriorityClass = ProcessPriorityClass.AboveNormal;
+							//AMCHANGE_end
 							haveConfiguredProcess = true;
 						}
 						catch (Exception)
@@ -201,7 +203,9 @@ namespace UnrealBuildTool
 		/// to get slightly faster build times in many cases, but your computer's responsiveness during compiling may be much worse.
 		/// </summary>
 		[XmlConfigFile]
-		double ProcessorCountMultiplier = 1.0;
+		//AMCHANGE_begin Optimize compile times
+		double ProcessorCountMultiplier = 2.0;
+		//AMCHANGE_end
 
 		/// <summary>
 		/// Maximum processor count for local execution. 
