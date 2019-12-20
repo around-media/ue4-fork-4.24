@@ -198,7 +198,12 @@ DEFINE_STAT(STAT_RenderTargetPoolSize);
 DEFINE_STAT(STAT_RenderTargetPoolUsed);
 DEFINE_STAT(STAT_RenderTargetPoolCount);
 
+//AMCHANGE_begin: 
+//#AMCHANGE Added check around defining EXPOSE_FORCE_LOD to make sure it's not defined before
+#ifndef EXPOSE_FORCE_LOD
 #define EXPOSE_FORCE_LOD !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+#endif
+//AMCHANGE_end
 
 #if EXPOSE_FORCE_LOD
 
