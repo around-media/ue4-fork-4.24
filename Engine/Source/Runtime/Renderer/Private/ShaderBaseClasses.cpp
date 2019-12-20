@@ -92,7 +92,10 @@ FRHIUniformBuffer* FMaterialShader::GetParameterCollectionBuffer(const FGuid& Id
 	const FScene* Scene = (const FScene*)SceneInterface;
 	FRHIUniformBuffer* UniformBuffer = Scene ? Scene->GetParameterCollectionBuffer(Id) : nullptr;
 
-	if (!UniformBuffer)
+	//AMCHANGE_begin Fix for crashes when parameter collection changed from previous builds
+	//Added extra check to see if parameter collection exists, if not, don't throw exception but just ignore it. To avoid crashes in previous builds if shaders use new parameter collection
+	if (!UniformBuffer && GDefaultMaterialParameterCollectionInstances.Find(Id) != nullptr)
+	//AMCHANGE_end
 	{
 		FMaterialParameterCollectionInstanceResource** CollectionResource = GDefaultMaterialParameterCollectionInstances.Find(Id);
 		if (CollectionResource && *CollectionResource)
@@ -281,6 +284,10 @@ void FMaterialShader::SetParametersInner(
 		{			
 			FRHIUniformBuffer* UniformBuffer = GetParameterCollectionBuffer(ParameterCollections[CollectionIndex], View.Family->Scene);
 
+			//AMCHANGE_begin Fix for crashes when parameter collection changed from previous builds
+			if (UniformBuffer) {
+			//AMCHANGE_end
+
 			if (!UniformBuffer)
 			{
 				// Dump the currently registered parameter collections and the ID we failed to find.
@@ -302,7 +309,11 @@ void FMaterialShader::SetParametersInner(
 					GDefaultMaterialParameterCollectionInstances.Num(), *InstancesString);
 			}
 
-			SetUniformBufferParameter(RHICmdList, ShaderRHI, ParameterCollectionUniformBuffers[CollectionIndex], UniformBuffer);			
+			SetUniformBufferParameter(RHICmdList, ShaderRHI, ParameterCollectionUniformBuffers[CollectionIndex], UniformBuffer);		
+
+			//AMCHANGE_begin Fix for crashes when parameter collection changed from previous builds
+			}
+			//AMCHANGE_end
 		}
 	}
 
