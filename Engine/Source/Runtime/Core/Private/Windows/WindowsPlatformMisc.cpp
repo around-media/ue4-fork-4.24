@@ -2269,6 +2269,14 @@ static void GetVideoDriverDetails(const FString& Key, FGPUDriverInfo& Out)
 		const FString SettingsSubKey = Key + TEXT("\\Settings");
 		bDevice = FWindowsPlatformMisc::QueryRegKey(HKEY_LOCAL_MACHINE, *SettingsSubKey, DeviceDescriptionValueName, Out.DeviceDescription); // AMD and NVIDIA
 
+		//AMCHANGE_begin: 
+		//#AMCHANGE extending check if video drive exists in windows registry because current check does not always work
+		if (!bDevice) {
+			const TCHAR* DriverDescriptionValueName = TEXT("DriverDesc");
+			bDevice = FWindowsPlatformMisc::QueryRegKey(HKEY_LOCAL_MACHINE, *Key, DriverDescriptionValueName, Out.DeviceDescription);
+		}
+		//AMCHANGE_end
+
 		if (!bDevice)
 		{
 			// Neither root nor Settings subfolder contained a "Device Description" value so this is probably not a device
