@@ -29,6 +29,10 @@ bool FPhysXCookHelper::CreatePhysicsMeshes_Concurrent()
 		{
 			bSuccess = false;
 			UE_LOG(LogPhysics, Warning, TEXT("Failed to cook TriMesh: %s."), *CookInfo.OuterDebugName);
+			//AMCHANGE_begin: 
+			//#AMCHANGE removed zeroed at the end of the array again (will cause crash later on otherwise)
+			OutTriangleMeshes.RemoveAt(OutTriangleMeshes.Num() - 1);
+			//AMCHANGE_end
 		}
 		else if (CookInfo.bSupportUVFromHitResults)
 		{
