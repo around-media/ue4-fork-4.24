@@ -439,6 +439,16 @@ void FRunnableThread::SetTls()
 
 void FRunnableThread::FreeTls()
 {
+
+	// AMCHANGE_begin Fix for crash on thread clean up
+	//app sometimes crashes because this method is called from incorrect thread for some reason (shouldn't happen...)
+	//instead of making everything crash, just return. Might cause a memory leak but still better than having everything crash
+	//FreeTls will also be called in AM threading logic if thread task has finished, so no memory leaks should happen...
+	if (ThreadID != FPlatformTLS::GetCurrentThreadId() || !FPlatformTLS::IsValidTlsSlot(RunnableTlsSlot)) {
+		return;
+	}
+	//AMCHANGE_end
+
 	// Make sure it's called from the owning thread.
 	check( ThreadID == FPlatformTLS::GetCurrentThreadId() );
 	check( FPlatformTLS::IsValidTlsSlot(RunnableTlsSlot) );
