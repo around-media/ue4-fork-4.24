@@ -200,8 +200,9 @@ DEFINE_STAT(STAT_RenderTargetPoolCount);
 
 //AMCHANGE_begin: 
 //#AMCHANGE Added check around defining EXPOSE_FORCE_LOD to make sure it's not defined before
+// #AMCHANGE  ForceLOD macro set to true so it works on shipping builds
 #ifndef EXPOSE_FORCE_LOD
-#define EXPOSE_FORCE_LOD !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+#define EXPOSE_FORCE_LOD true
 #endif
 //AMCHANGE_end
 
