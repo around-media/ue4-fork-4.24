@@ -101,12 +101,13 @@ class UNREALED_API UCookOnTheFlyServer : public UObject, public FTickableEditorO
 {
 	GENERATED_BODY()
 
-		UCookOnTheFlyServer(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-//AMCHANGE_begin
+		//AMCHANGE_begin
 //#AMCHANGE to protected to use from children
 protected:
 //AMCHANGE_end
+		UCookOnTheFlyServer(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+
 
 	/** Current cook mode the cook on the fly server is running in */
 	ECookMode::Type CurrentCookMode = ECookMode::CookOnTheFly;
@@ -540,9 +541,11 @@ private:
 	*/
 	//AMCHANGE_begin
 	//#AMCHANGE Set to virtual to change it in child class
+	public:
 	virtual void CollectFilesToCook(TArray<FName>& FilesInPath,
 		const TArray<FString>& CookMaps, const TArray<FString>& CookDirectories, 
 		const TArray<FString>& IniMapSections, ECookByTheBookOptions FilesToCookFlags);
+	private:
 	//AMCHANGE_end
 
 	/**
@@ -580,7 +583,9 @@ private:
 	*/
 	//AMCHANGE_begin
 	//#AMCHANGE Set to virtual to change it in child class
+	protected:
 	virtual void CookByTheBookFinished();
+	private:
 	//AMCHANGE_end
 
 	/**
@@ -673,7 +678,9 @@ private:
 	 */
 	 //AMCHANGE_begin
 	  //#AMCHANGE Set to virtual to change it in child class
+	protected:
 	virtual void SaveCookedPackages(UPackage* PackageToSave, const TArray<FName>& TargetPlatformNames, const TArray<const ITargetPlatform*>& TargetPlatformsToCache, struct FCookerTimer& Timer, uint32& CookedPackageCount, uint32& Result);
+	private:
 	//AMCHANGE_end
 
 	/** Perform any special processing for freshly loaded packages 
@@ -952,7 +959,13 @@ private:
 	uint32		StatLoadedPackageCount = 0;
 	uint32		StatSavedPackageCount = 0;
 
+	//AMCHANGE_begin
+//#AMCHANGE to protected to use from children
+protected:
 	FPackageTracker*	PackageTracker;
+	private:
+	//AMCHANGE_end
+
 	FPackageNameCache*	PackageNameCache;
 
 	TArray<FSavePackageContext*> SavePackageContexts;
