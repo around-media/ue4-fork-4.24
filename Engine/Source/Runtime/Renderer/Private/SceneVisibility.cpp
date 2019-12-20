@@ -3110,7 +3110,7 @@ void FSceneRenderer::PreVisibilityFrameSetup(FRHICommandListImmediate& RHICmdLis
 			//AMCHANGE_begin
 			//#AMCHANGE Keep calculating TAA samples in pause
 			View.bStatePrevViewInfoIsReadOnly = ViewFamily.bWorldIsPaused || ViewFamily.EngineShowFlags.HitProxies || bFreezeTemporalHistories 
-				|| !GEnableTAAHistoryInPause;
+				|| !GEnableTAAHistoryDuringPauseForCaptureComponent;
 			//AMCHANGE_end
 
 			ViewState->SetupDistanceFieldTemporalOffset(ViewFamily);
