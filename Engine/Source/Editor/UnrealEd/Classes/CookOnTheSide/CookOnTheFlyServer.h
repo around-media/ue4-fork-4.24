@@ -103,7 +103,11 @@ class UNREALED_API UCookOnTheFlyServer : public UObject, public FTickableEditorO
 
 		UCookOnTheFlyServer(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-private:
+//AMCHANGE_begin
+//#AMCHANGE to protected to use from children
+protected:
+//AMCHANGE_end
+
 	/** Current cook mode the cook on the fly server is running in */
 	ECookMode::Type CurrentCookMode = ECookMode::CookOnTheFly;
 	/** Directory to output to instead of the default should be empty in the case of DLC cooking */ 
@@ -298,7 +302,10 @@ public:
 	/**
 	* Initialize the CookServer so that either CookOnTheFly can be called or Cook on the side can be started and ticked
 	*/
-	void Initialize( ECookMode::Type DesiredCookMode, ECookInitializationFlags InCookInitializationFlags, const FString& OutputDirectoryOverride = FString() );
+	//AMCHANGE_begin
+	//#AMCHANGE Set to virtual to change it in child class
+	virtual void Initialize( ECookMode::Type DesiredCookMode, ECookInitializationFlags InCookInitializationFlags, const FString& OutputDirectoryOverride = FString() );
+	//AMCHANGE_end
 
 	/**
 	* Cook on the side, cooks while also running the editor...
@@ -531,9 +538,12 @@ private:
 	/**
 	* Collect all the files which need to be cooked for a cook by the book session
 	*/
-	void CollectFilesToCook(TArray<FName>& FilesInPath, 
+	//AMCHANGE_begin
+	//#AMCHANGE Set to virtual to change it in child class
+	virtual void CollectFilesToCook(TArray<FName>& FilesInPath,
 		const TArray<FString>& CookMaps, const TArray<FString>& CookDirectories, 
 		const TArray<FString>& IniMapSections, ECookByTheBookOptions FilesToCookFlags);
+	//AMCHANGE_end
 
 	/**
 	* AddFileToCook add file to cook list 
@@ -568,7 +578,10 @@ private:
 	/**
 	* Call back from the TickCookOnTheSide when a cook by the book finishes (when started form StartCookByTheBook)
 	*/
-	void CookByTheBookFinished();
+	//AMCHANGE_begin
+	//#AMCHANGE Set to virtual to change it in child class
+	virtual void CookByTheBookFinished();
+	//AMCHANGE_end
 
 	/**
 	* Get all the packages which are listed in asset registry passed in.  
@@ -658,7 +671,10 @@ private:
 	 * @param Result (in+out) used to modify the result of the operation and add any relevant flags
 	 * @return returns true if we saved all the packages false if we bailed early for any reason
 	 */
-	void SaveCookedPackages(UPackage* PackageToSave, const TArray<FName>& TargetPlatformNames, const TArray<const ITargetPlatform*>& TargetPlatformsToCache, struct FCookerTimer& Timer, uint32& CookedPackageCount, uint32& Result);
+	 //AMCHANGE_begin
+	  //#AMCHANGE Set to virtual to change it in child class
+	virtual void SaveCookedPackages(UPackage* PackageToSave, const TArray<FName>& TargetPlatformNames, const TArray<const ITargetPlatform*>& TargetPlatformsToCache, struct FCookerTimer& Timer, uint32& CookedPackageCount, uint32& Result);
+	//AMCHANGE_end
 
 	/** Perform any special processing for freshly loaded packages 
 	 */
