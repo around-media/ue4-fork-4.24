@@ -132,21 +132,6 @@ float GetBasicAutoExposureFocus()
 }
 
 
-//AMCHANGE_begin: Changes needed to 'lock' the eye adaptation exposure when creating renders
-TAutoConsoleVariable<int> CVarEyeAdaptationReadback(
-	TEXT("r.EyeAdaptation.Readback"),
-	1,
-	TEXT("If enabled, always read back the latest exposure value (not only when pre-exposure is enabled)"),
-	ECVF_RenderThreadSafe);
-
-float GLastExposure = 0;
-float GetLatestExposure()
-{
-	return GLastExposure;
-}
-//AMCHANGE_end
-
-
 float GetAutoExposureCompensation(const FViewInfo& View)
 {
 	const FPostProcessSettings& Settings = View.FinalPostProcessSettings;
@@ -717,13 +702,14 @@ void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 				}
 
 				bUpdateLastExposure = true;
+				GLastExposure = LastExposure;
 			}
 			// The exposure compensation curves require the scene average luminance
 			else if (View.FinalPostProcessSettings.AutoExposureBiasCurve)
 			{
 				bUpdateLastExposure = true;
 			}
-			GLastExposure = LastExposure;
+			
 		}
 	}
 	//AMCHANGE_end

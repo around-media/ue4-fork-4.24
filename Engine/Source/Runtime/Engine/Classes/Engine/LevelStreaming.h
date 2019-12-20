@@ -158,6 +158,11 @@ private:
 	/* Whether CachedLoadedLevelPackageName is valid */
 	mutable uint8 bHasCachedLoadedLevelPackageName:1;
 
+
+//AMCHANGE_begin: 
+//#AMCHANGE  make public so it can be changed in the ContentCommandlets
+
+public:
 #if WITH_EDITORONLY_DATA
 	/** Whether this level should be visible in the Editor																		*/
 	UPROPERTY()
@@ -167,6 +172,9 @@ private:
 	/** Whether the level should be visible if it is loaded																		*/
 	UPROPERTY(Category=LevelStreaming, BlueprintSetter=SetShouldBeVisible)
 	uint8 bShouldBeVisible:1;
+
+//AMCHANGE_end
+
 
 protected:
 	/** Whether the level should be loaded																						*/

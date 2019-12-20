@@ -1537,15 +1537,15 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 			{
 				//AMCHANGE_begin: 
 				//#AMCHANGE  Only repackage specific sub-levels
-				const FString StreamingLevelWorldAssetPackageName = NextStreamingLevel->GetWorldAssetPackageName();
+				const FString StreamingLevelWorldAssetPackageName = StreamingLevel->GetWorldAssetPackageName();
 
 				FMapToRepackage* MapToRebuild = MapsToRepackageByMapPackageName.Find(World->GetOutermost()->GetName());
 				check(MapToRebuild);
 
 				if (!MapToRebuild->ShouldRepackageSubLevel(StreamingLevelWorldAssetPackageName))
 				{
-					NextStreamingLevel->bShouldBeVisible = false;
-					NextStreamingLevel->bShouldBeVisibleInEditor = false;
+					StreamingLevel->bShouldBeVisible = false;
+					StreamingLevel->bShouldBeVisibleInEditor = false;
 					continue;
 				}
 				//AMCHANGE_end
@@ -1559,7 +1559,6 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 				}
 
 				FString StreamingLevelPackageFilename;
-				const FString StreamingLevelWorldAssetPackageName = StreamingLevel->GetWorldAssetPackageName();
 				if (FPackageName::DoesPackageExist(StreamingLevelWorldAssetPackageName, NULL, &StreamingLevelPackageFilename))
 				{
 					// If we are building HLODs only, we dont check out the files ahead of rebuilding the data
@@ -1611,9 +1610,9 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 
 				//AMCHANGE_begin: 
 				//#AMCHANGE Only repackage specific sub-levels
-				NextStreamingLevel->bShouldBeVisibleInEditor = true;
+				StreamingLevel->bShouldBeVisibleInEditor = true;
 
-				LevelStreamingsToRebuild.Add(NextStreamingLevel);
+				LevelStreamingsToRebuild.Add(StreamingLevel);
 				//AMCHANGE_end
 			}
 		}
