@@ -10,6 +10,11 @@ using AutomationTool;
 using System.Xml;
 using Tools.DotNETCommon;
 
+//AMCHANGE_begin: 
+//#AMCHANGE  Changed Automation tool to fill in projectfilename in file path. So buildgraph works with installed engines.
+using System.IO;
+//AMCHANGE_end
+
 namespace AutomationTool
 {
 	/// <summary>
@@ -106,6 +111,34 @@ namespace AutomationTool
 			Add(Task);
 		}
 
+
+		//AMCHANGE_begin
+		//#AMCHANGE Changed Automation tool to fill in projectfilename in file path. So buildgraph works with installed engines.
+		/// <summary>
+		/// Function that parses an arguments string for the project file parameter
+		/// </summary>
+		/// <param name="Arguments">string with arguments split by space</param>
+		/// <returns>A FileReference to the projectfile or null if it was not found.</returns>
+		public FileReference GetProjectFileReferenceFromArguments(string Arguments)
+		{
+			FileReference ProjectFileRef = null;
+			string[] ArgsList = Arguments.Split(' ');
+			foreach (string Arg in ArgsList)
+			{
+				if (Arg.StartsWith("-project=", StringComparison.InvariantCultureIgnoreCase))
+				{
+					string ProjectFileName = Arg.Substring(Arg.IndexOf('=') + 1).Replace("\"", "");
+					if (File.Exists(ProjectFileName))
+					{
+						ProjectFileRef = new FileReference(ProjectFileName);
+					}
+				}
+
+			}
+			return ProjectFileRef;
+		}
+		//AMCHANGE_end
+
 		/// <summary>
 		/// Adds another task to this executor
 		/// </summary>
@@ -135,8 +168,16 @@ namespace AutomationTool
 			bAllowXGE &= Parameters.AllowXGE;
 			bAllowParallelExecutor &= Parameters.AllowParallelExecutor;
 
-			UE4Build.BuildTarget Target = new UE4Build.BuildTarget { TargetName = Parameters.Target, Platform = Parameters.Platform, Config = Parameters.Configuration, UprojectPath = String.IsNullOrEmpty(Parameters.Project)? null : new FileReference(Parameters.Project), UBTArgs = "-nobuilduht " + (Parameters.Arguments ?? ""), Clean = Parameters.Clean };
-			if(!String.IsNullOrEmpty(Parameters.Tag))
+			//AMCHANGE_begin
+			//#AMCHANGE Changed Automation tool to fill in projectfilename in file path. So buildgraph works with installed engines.
+			//Parse uproject param
+			FileReference ProjectFileRef = GetProjectFileReferenceFromArguments(Parameters.Arguments);
+
+			UE4Build.BuildTarget Target = new UE4Build.BuildTarget { TargetName = Parameters.Target, Platform = Parameters.Platform, Config = Parameters.Configuration, UprojectPath = ProjectFileRef, UBTArgs = "-nobuilduht " + (Parameters.Arguments ?? ""), Clean = Parameters.Clean };
+
+			//AMCHANGE_end
+
+			if (!String.IsNullOrEmpty(Parameters.Tag))
 			{
 				TargetToTagName.Add(Target, Parameters.Tag);
 			}
