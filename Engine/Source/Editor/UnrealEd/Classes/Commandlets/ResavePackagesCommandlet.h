@@ -12,6 +12,24 @@
 // Log category should be accessible by derived classes
 UNREALED_API DECLARE_LOG_CATEGORY_EXTERN(LogContentCommandlet, Log, All);
 
+/**
+ * AMCHANGE_begin: 
+ * #AMCHANGE Added documentation
+ * Commandlet to save, rebuild lighting, rebuild textures, rebuild HLODs (and more) of packages
+ * This is only partial documentations of the commandlet
+ *
+ * parameters:
+ * -map levelName[:sublevelName1, subLevelName2][+levelName2[:sublevelName1,...]][+levelName3][...] (Defines a map on which all operations determined by switches should be applied)
+ *
+ * switches:
+ * -buildlighting               (will build the lighting on all maps defined (see "-map" parameter)
+ * -AllowCommandletRendering    (required in the case of building lighting or HLOD)
+ * -AutoCheckOutPackages        (will automatically checkout all modified packages in the source control)
+ * -AutoCheckIn                 (should automatically check-in (a.k.a. submit) all modified packages)
+ * 
+ * AMCHANGE_end
+*/
+
 UCLASS()
 // Added UNREALED_API to expose this to the save packages test
 class UNREALED_API UResavePackagesCommandlet : public UCommandlet
@@ -211,6 +229,78 @@ protected:
 
 	// Print out a message only if running in very verbose mode
 	void VerboseMessage(const FString& Message);
+
+
+//AMCHANGE_begin: 
+//#AMCHANGE Only repackage specific sub-levels
+
+private:
+
+	/** Container of the parsed parameters of the "map" console argument */
+	struct FParsedMapParameter
+	{
+		FString Map;
+		TArray<FString> SubLevels;
+	};
+
+	/**
+	 * Parse the "map" commandlet parameter to fetch the levels and sub-levels.
+	 * Separation between maps is "+", separation between sub-levels is ",", separator to define sub-levels of a map is ":"
+	 * An example of the map parameter is: map="level1:level1_subLevel1,level1_subLevel2+level2"
+	 * The result of such a parameter is:
+	 *  level1 will be repackaged, but only with level1_subLevel1 and level1_subLevel2
+	 *  level2 will be repackaged (with all its sub-levels)
+	 *
+	 * @param   MapParameterText    [in]    The text in the "map" commandlet parameter
+	 * @param   ParsedMapParameters [out]   Parsed result
+	 *
+	 */
+	void ParseMapsParameter(const FString& MapsParameter, TArray<FParsedMapParameter>& ParsedMapParameters) const;
+
+	/**
+	 * Parse the part of the "map" commandlet parameter concerning 1 specific map and its sub-levels. For all documentation on it, look at ParseMapsParameter
+	 *
+	 * @param   MapAndSubLevelsText [in]    The text in the "map" console parameter for one specific map
+	 * @param   ParsedMapParameter  [out]   The parsed result
+	 */
+	void ParseMapAndSubLevelText(const FString& MapAndSubLevelsText, FParsedMapParameter& ParsedMapParameter) const;
+
+	/** Container describing a map that needs to be repackaged */
+	struct FMapToRepackage
+	{
+		/** Map that should be rebuilt */
+		FString MapFileName;
+		FString MapLongPackageName;
+
+		bool bShouldRepackAllSubLevels = false;
+		/** Sub-levels of the map that should be rebuilt */
+		TArray<FString> SubLevelsPackageName;
+
+		bool ShouldRepackageSubLevel(const FString& SubLevel) const
+		{
+			if (bShouldRepackAllSubLevels)
+			{
+				return true;
+			}
+
+			return SubLevelsPackageName.Contains(SubLevel);
+		}
+	};
+
+	/**
+	 * Find all the maps and sub-levels that need to be repackaged based on the "map" commandlet parameter
+	 *
+	 * @param MapParameter      [in]    Text in the "map" commandlet parameter
+	 * @param MapsToRepackage   [out]   Maps and sub-levels that need to be repackaged
+	 *
+	 */
+	void FindMapToRebuildFromParameters(const FString& MapParameter, TArray<FMapToRepackage>& MapsToRepackage) const;
+
+	/** Maps that should be repackaged in this commandlet run */
+	TMap<FString, FMapToRepackage> MapsToRepackageByMapPackageName;
+
+
+	//AMCHANGE_end
 
 public:		
 	//~ Begin UCommandlet Interface

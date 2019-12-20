@@ -127,24 +127,34 @@ int32 UResavePackagesCommandlet::InitializeResaveParameters( const TArray<FStrin
 		}
 		else if (FParse::Value(*CurrentSwitch, TEXT("MAP="), Maps))
 		{
-			// Allow support for -MAP=Value1+Value2+Value3
-			for (int32 PlusIdx = Maps.Find(TEXT("+")); PlusIdx != INDEX_NONE; PlusIdx = Maps.Find(TEXT("+")))
-			{
-				const FString NextMap = Maps.Left(PlusIdx);
-				if (NextMap.Len() > 0)
-				{
-					FString MapFile;
-					FPackageName::SearchForPackageOnDisk(NextMap, NULL, &MapFile);
-					PackageNames.Add(*MapFile);
-					bExplicitPackages = true;
-				}
+			//AMCHANGE_begin: 
+			//#AMCHANGE Only re-package specific sub-levels
+			TArray<FMapToRepackage> MapsToRepackage;
+			FindMapToRebuildFromParameters(Maps, MapsToRepackage);
 
-				Maps = Maps.Right(Maps.Len() - (PlusIdx + 1));
+			bExplicitPackages = MapsToRepackage.Num() > 0;
+			for (const FMapToRepackage& MapToRebuild : MapsToRepackage)
+			{
+				PackageNames.AddUnique(MapToRebuild.MapFileName);
+				// If there are multiple times the same map in the parameters, only the information in the last entry will be considered
+				MapsToRepackageByMapPackageName.Add(MapToRebuild.MapLongPackageName, MapToRebuild);
 			}
-			FString MapFile;
-			FPackageName::SearchForPackageOnDisk(Maps, NULL, &MapFile);
-			PackageNames.Add(*MapFile);
-			bExplicitPackages = true;
+
+			if (UE_LOG_ACTIVE(LogContentCommandlet, Display))
+			{
+				UE_LOG(LogContentCommandlet, Display, TEXT("Levels to repackage:"));
+
+				for (const FMapToRepackage& MapToRepackage : MapsToRepackage)
+				{
+					UE_LOG(LogContentCommandlet, Display, TEXT("Level = %s"), *MapToRepackage.MapLongPackageName);
+					for (const FString& SubLevelPackageName : MapToRepackage.SubLevelsPackageName)
+					{
+						UE_LOG(LogContentCommandlet, Display, TEXT("\tSub-level = %s"), *SubLevelPackageName);
+					}
+				}
+			}
+
+			//AMCHANGE_end
 		}
 		else if (FParse::Value(*CurrentSwitch, TEXT("FILE="), File))
 		{
@@ -1513,6 +1523,11 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 			bShouldProceedWithRebuild = false;
 		}
 
+		//AMCHANGE_begin: 
+		//#AMCHANGE Only re-save specific sublevels
+		TArray<ULevelStreaming*> LevelStreamingsToRebuild;
+		//AMCHANGE_end
+
 		if (bShouldProceedWithRebuild)
 		{
 			World->LoadSecondaryLevels(true, NULL);
@@ -1520,6 +1535,21 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 			TArray<ULevelStreaming*> StreamingLevels = World->GetStreamingLevels();
 			for (ULevelStreaming* StreamingLevel : StreamingLevels)
 			{
+				//AMCHANGE_begin: 
+				//#AMCHANGE  Only repackage specific sub-levels
+				const FString StreamingLevelWorldAssetPackageName = NextStreamingLevel->GetWorldAssetPackageName();
+
+				FMapToRepackage* MapToRebuild = MapsToRepackageByMapPackageName.Find(World->GetOutermost()->GetName());
+				check(MapToRebuild);
+
+				if (!MapToRebuild->ShouldRepackageSubLevel(StreamingLevelWorldAssetPackageName))
+				{
+					NextStreamingLevel->bShouldBeVisible = false;
+					NextStreamingLevel->bShouldBeVisibleInEditor = false;
+					continue;
+				}
+				//AMCHANGE_end
+
 				bool bShouldBeLoaded = true;
 
 				// If we are not building HLODs or are but also rebuilding lighting we check out the level file, otherwise we don't to try and ensure a minimal HLOD rebuild
@@ -1578,6 +1608,13 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 				
 				StreamingLevel->SetShouldBeVisible(bShouldBeLoaded);
 				StreamingLevel->SetShouldBeLoaded(bShouldBeLoaded);
+
+				//AMCHANGE_begin: 
+				//#AMCHANGE Only repackage specific sub-levels
+				NextStreamingLevel->bShouldBeVisibleInEditor = true;
+
+				LevelStreamingsToRebuild.Add(NextStreamingLevel);
+				//AMCHANGE_end
 			}
 		}
 
@@ -1695,12 +1732,39 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 				FLightingBuildOptions LightingOptions;
  				LightingOptions.QualityLevel = LightingBuildQuality;
 
+				//AMCHANGE_begin: 
+				//#AMCHANGE Only repackage specific sub-levels
+				LightingOptions.bOnlyBuildSelectedLevels = true;
+				LightingOptions.SelectedLevels.Add(World->PersistentLevel);
+				for (ULevelStreaming* LevelStreaming : LevelStreamingsToRebuild)
+				{
+					LightingOptions.SelectedLevels.Add(LevelStreaming->GetLoadedLevel());
+				}
+				//AMCHANGE_end
+
 				auto BuildFailedDelegate = [&bShouldProceedWithRebuild,&World]() {
 					UE_LOG(LogContentCommandlet, Error, TEXT("[REPORT] Failed building lighting for %s"), *World->GetOutermost()->GetName());
 					bShouldProceedWithRebuild = false;
 				};
 
 				FDelegateHandle BuildFailedDelegateHandle = FEditorDelegates::OnLightingBuildFailed.AddLambda(BuildFailedDelegate);
+
+
+				//AMCHANGE_begin: 
+				//#AMCHANGE Only repackage specific sub-levels
+				if (UE_LOG_ACTIVE(LogContentCommandlet, Display))
+				{
+					// Log the details of what the light build will do before light building
+					FString SelectedLevelListText = TEXT("[");
+					for (ULevel* SelectedLevel : LightingOptions.SelectedLevels)
+					{
+						SelectedLevelListText += FString::Printf(TEXT("%s,"), *SelectedLevel->GetOutermost()->GetName());
+					}
+					SelectedLevelListText += TEXT("]");
+
+					UE_LOG(LogContentCommandlet, Display, TEXT("Light building level %s. Light build options: QualityLevel=%d LevelsToBuild=%s"), *World->GetOutermost()->GetName(), LightingOptions.QualityLevel, *SelectedLevelListText);
+				}
+				//AMCHANGE_end
 
 				GEditor->BuildLighting(LightingOptions);
 				while (GEditor->IsLightingBuildCurrentlyRunning())
@@ -1878,6 +1942,93 @@ void UResavePackagesCommandlet::VerboseMessage(const FString& Message)
 		UE_LOG(LogContentCommandlet, Verbose, TEXT("%s"), *Message);
 	}
 }
+
+//AMCHANGE_begin: 
+//#AMCHANGE Only re-save specific sublevels
+
+void UResavePackagesCommandlet::ParseMapsParameter(const FString& MapsParameter, TArray<FParsedMapParameter>& ParsedMapParameters) const
+{
+	const static FString MapSeparator = TEXT("+");
+
+	TArray<FString> MapAndSubLevelsTexts;
+	MapsParameter.ParseIntoArray(MapAndSubLevelsTexts, *MapSeparator, true);
+
+	for (const FString& MapAndSubLevelsText : MapAndSubLevelsTexts)
+	{
+		FParsedMapParameter ParsedMapParameter;
+		ParseMapAndSubLevelText(MapAndSubLevelsText, ParsedMapParameter);
+
+		ParsedMapParameters.Add(ParsedMapParameter);
+	}
+}
+
+void UResavePackagesCommandlet::ParseMapAndSubLevelText(const FString& MapAndSubLevelsText, FParsedMapParameter& ParsedMapParameter) const
+{
+	const static FString MapToSubLevelSeparator = TEXT(":");
+	const static FString SubLevelSeparator = TEXT(",");
+
+	TArray<FString> SubLevelNames;
+
+	// Find map name in the text
+	FString MapName;
+	FString SubLevelsText;
+	if (MapAndSubLevelsText.Split(MapToSubLevelSeparator, &MapName, &SubLevelsText))
+	{
+		if (!SubLevelsText.IsEmpty())
+		{
+			SubLevelsText.ParseIntoArray(SubLevelNames, *SubLevelSeparator, true);
+		}
+	}
+	else
+	{
+		MapName = MapAndSubLevelsText;
+	}
+
+	ParsedMapParameter.Map = MapName;
+	ParsedMapParameter.SubLevels.Append(SubLevelNames);
+}
+
+void UResavePackagesCommandlet::FindMapToRebuildFromParameters(const FString& MapParameter, TArray<FMapToRepackage>& MapsToRepackage) const
+{
+	TArray<FParsedMapParameter> ParsedMapParameters;
+	ParseMapsParameter(MapParameter, ParsedMapParameters);
+
+	for (const FParsedMapParameter& ParsedMapParameter : ParsedMapParameters)
+	{
+		FMapToRepackage MapToPackage;
+		if (FPackageName::SearchForPackageOnDisk(ParsedMapParameter.Map, &MapToPackage.MapLongPackageName, &MapToPackage.MapFileName))
+		{
+			if (ParsedMapParameter.SubLevels.Num() == 0)
+			{
+				// When no sub-levels are defined in the parameters, all sublevels should be repackaged
+				MapToPackage.bShouldRepackAllSubLevels = true;
+			}
+			else
+			{
+				for (const FString& SubLevelParameter : ParsedMapParameter.SubLevels)
+				{
+					FString SubLevelPackageName;
+					if (FPackageName::SearchForPackageOnDisk(SubLevelParameter, &SubLevelPackageName, NULL))
+					{
+						MapToPackage.SubLevelsPackageName.Add(SubLevelPackageName);
+					}
+					else
+					{
+						UE_LOG(LogContentCommandlet, Error, TEXT("Error finding sub-level %s on disk."), *SubLevelParameter);
+					}
+				}
+			}
+
+			MapsToRepackage.Add(MapToPackage);
+		}
+		else
+		{
+			UE_LOG(LogContentCommandlet, Error, TEXT("Error finding level %s on disk."), *ParsedMapParameter.Map);
+		}
+	}
+}
+
+//AMCHANGE_end
 
 /*-----------------------------------------------------------------------------
 	UWrangleContent.
