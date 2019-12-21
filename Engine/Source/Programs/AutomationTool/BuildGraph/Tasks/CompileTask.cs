@@ -118,23 +118,34 @@ namespace AutomationTool
 		/// Function that parses an arguments string for the project file parameter
 		/// </summary>
 		/// <param name="Arguments">string with arguments split by space</param>
+		/// <param name="Project">string with project</param>
 		/// <returns>A FileReference to the projectfile or null if it was not found.</returns>
-		public FileReference GetProjectFileReferenceFromArguments(string Arguments)
+		public FileReference GetProjectFileReferenceFromArguments(string Arguments, string Project)
 		{
 			FileReference ProjectFileRef = null;
-			string[] ArgsList = Arguments.Split(' ');
-			foreach (string Arg in ArgsList)
-			{
-				if (Arg.StartsWith("-project=", StringComparison.InvariantCultureIgnoreCase))
-				{
-					string ProjectFileName = Arg.Substring(Arg.IndexOf('=') + 1).Replace("\"", "");
-					if (File.Exists(ProjectFileName))
-					{
-						ProjectFileRef = new FileReference(ProjectFileName);
-					}
-				}
 
+			if (!String.IsNullOrEmpty(Arguments))
+			{
+				string[] ArgsList = Arguments.Split(' ');
+				foreach (string Arg in ArgsList)
+				{
+					if (Arg.StartsWith("-project=", StringComparison.InvariantCultureIgnoreCase))
+					{
+						string ProjectFileName = Arg.Substring(Arg.IndexOf('=') + 1).Replace("\"", "");
+						if (File.Exists(ProjectFileName))
+						{
+							ProjectFileRef = new FileReference(ProjectFileName);
+						}
+					}
+
+				}
 			}
+
+			if(ProjectFileRef == null && !String.IsNullOrEmpty(Project))
+			{
+				ProjectFileRef = new FileReference(Project);
+			}
+
 			return ProjectFileRef;
 		}
 		//AMCHANGE_end
@@ -171,7 +182,8 @@ namespace AutomationTool
 			//AMCHANGE_begin
 			//#AMCHANGE Changed Automation tool to fill in projectfilename in file path. So buildgraph works with installed engines.
 			//Parse uproject param
-			FileReference ProjectFileRef = GetProjectFileReferenceFromArguments(Parameters.Arguments);
+			FileReference ProjectFileRef = GetProjectFileReferenceFromArguments(Parameters.Arguments, Parameters.Project);
+			
 
 			UE4Build.BuildTarget Target = new UE4Build.BuildTarget { TargetName = Parameters.Target, Platform = Parameters.Platform, Config = Parameters.Configuration, UprojectPath = ProjectFileRef, UBTArgs = "-nobuilduht " + (Parameters.Arguments ?? ""), Clean = Parameters.Clean };
 
