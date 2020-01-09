@@ -80,7 +80,7 @@ AActor* FFoliageActor::Spawn(AInstancedFoliageActor* IFA, const FFoliageInstance
 	{
 		return nullptr;
 	}
-
+	FEditorScriptExecutionGuard ScriptGuard;
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.ObjectFlags = RF_Transactional;
 	SpawnParameters.bHideFromSceneOutliner = true;
