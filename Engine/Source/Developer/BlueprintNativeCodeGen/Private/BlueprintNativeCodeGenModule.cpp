@@ -1239,9 +1239,8 @@ bool FBlueprintNativeCodeGenModule::HasCircularReferenceWithAnyConvertedAsset(co
 void FBlueprintNativeCodeGenModule::FillPlatformNativizationDetails(const ITargetPlatform* Platform, FPlatformNativizationDetails& Details)
 {
 	check(Platform);
-	const PlatformInfo::FPlatformInfo& PlatformInfo = Platform->GetPlatformInfo();
 
-	Details.PlatformName = PlatformInfo.TargetPlatformName;
+	Details.PlatformName = FName(*Platform->PlatformName());
 	Details.CompilerNativizationOptions.PlatformName = Details.PlatformName;
 	Details.CompilerNativizationOptions.ClientOnlyPlatform = Platform->IsClientOnly();
 	Details.CompilerNativizationOptions.ServerOnlyPlatform = Platform->IsServerOnly();
