@@ -5586,6 +5586,16 @@ void UCookOnTheFlyServer::GenerateLongPackageNames(TArray<FName>& FilesInPath)
 	FilesInPath.Append(FilesInPathReverse);
 }
 
+void UCookOnTheFlyServer::EmptyPackageLists()
+{
+	// We empty this list because otherwise it results in certain assets not cooked
+	PackageTracker->NeverCookPackageList.Empty();
+
+	// We empty these lists because otherwise too many items are cooked
+	PackageTracker->LoadedPackages.Empty();
+	PackageTracker->NewPackages.Empty();
+}
+
 void UCookOnTheFlyServer::AddFileToCook( TArray<FName>& InOutFilesToCook, const FString &InFilename ) const
 { 
 	if (!FPackageName::IsScriptPackage(InFilename) && !FPackageName::IsMemoryPackage(InFilename))
