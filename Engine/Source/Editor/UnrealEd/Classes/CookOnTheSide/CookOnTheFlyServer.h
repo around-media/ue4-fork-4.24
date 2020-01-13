@@ -951,7 +951,6 @@ private:
 	/** Generates long package names for all files to be cooked */
 	void GenerateLongPackageNames(TArray<FName>& FilesInPath);
 
-
 	void GetDependencies( UPackage* Package, TArray<UPackage*> Dependencies );
 
 	uint32 FullLoadAndSave(uint32& CookedPackageCount);
@@ -959,12 +958,19 @@ private:
 	uint32		StatLoadedPackageCount = 0;
 	uint32		StatSavedPackageCount = 0;
 
-	//AMCHANGE_begin
-//#AMCHANGE to protected to use from children
 protected:
 	FPackageTracker*	PackageTracker;
-	private:
+
+	//AMCHANGE_begin
+
+	// We need to empty the package lists that the engine fills up, to avoid cooking too many items
+	// And to avoid that certain items are not cooked
+	void EmptyPackageLists();
+
 	//AMCHANGE_end
+
+	private:
+	
 
 	FPackageNameCache*	PackageNameCache;
 
