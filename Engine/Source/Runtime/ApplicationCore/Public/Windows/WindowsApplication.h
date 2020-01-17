@@ -449,6 +449,10 @@ private:
 
 private:
 
+	bool bCancelMouseDownOnce;
+
+	bool bCancelMouseUpOnce;
+
 	static const FIntPoint MinimizedWindowPosition;
 
 	HINSTANCE InstanceHandle;
