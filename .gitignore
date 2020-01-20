@@ -199,7 +199,9 @@ Intermediate/
 obj/
 
 # Ignore any saved local files
-Saved/
+Engine/Programs/**/Saved/**
+Engine/Saved/Autosaves/**
+Engine/Saved/Config/**
 /Engine/Programs/MemoryProfiler2/**
 /Engine/Programs/UnrealBuildTool/**
 /LocalBuilds/
@@ -223,3 +225,9 @@ Saved/
 
 # Ignore the headers and cpp files in the clang toolchain on Linux
 Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/**
+
+# AMCHANGE_begin
+
+#Add exception for unrealbuildtool configuration
+!Engine/Saved/UnrealBuildTool/BuildConfiguration.xml
+#AMCHANGE_end
