@@ -80,27 +80,28 @@ FWindowsApplication* FWindowsApplication::CreateWindowsApplication( const HINSTA
 }
 
 
-FWindowsApplication::FWindowsApplication( const HINSTANCE HInstance, const HICON IconHandle )
-	: GenericApplication( MakeShareable( new FWindowsCursor() ) )
-	, InstanceHandle( HInstance )
-	, bMinimized( false )
-	, bUsingHighPrecisionMouseInput( false )
-	, bIsMouseAttached( false )
-	, bForceActivateByMouse( false )
-	, bForceNoGamepads( false )
-	, bConsumeAltSpace( false )
-	, XInput( XInputInterface::Create( MessageHandler ) )
-	, bHasLoadedInputPlugins( false )
+FWindowsApplication::FWindowsApplication(const HINSTANCE HInstance, const HICON IconHandle)
+	: GenericApplication(MakeShareable(new FWindowsCursor()))
+	, InstanceHandle(HInstance)
+	, bMinimized(false)
+	, bUsingHighPrecisionMouseInput(false)
+	, bIsMouseAttached(false)
+	, bForceActivateByMouse(false)
+	, bForceNoGamepads(false)
+	, bConsumeAltSpace(false)
+	, XInput(XInputInterface::Create(MessageHandler))
+	, bHasLoadedInputPlugins(false)
 	, bAllowedToDeferMessageProcessing(true)
-	, CVarDeferMessageProcessing( 
-		TEXT( "Slate.DeferWindowsMessageProcessing" ),
+	, CVarDeferMessageProcessing(
+		TEXT("Slate.DeferWindowsMessageProcessing"),
 		bAllowedToDeferMessageProcessing,
-		TEXT( "Whether windows message processing is deferred until tick or if they are processed immediately" ) )
-	, bInModalSizeLoop( false )
+		TEXT("Whether windows message processing is deferred until tick or if they are processed immediately"))
+	, bInModalSizeLoop(false)
+	, bCancelMouseDownOnce(false)
+	, bCancelMouseUpOnce(false)
 #if WITH_ACCESSIBILITY
 	, UIAManager(new FWindowsUIAManager(*this))
 #endif
-
 {
 	FMemory::Memzero(ModifierKeyState, EModifierKey::Count);
 
@@ -1955,15 +1956,39 @@ int32 FWindowsApplication::ProcessDeferredMessage( const FDeferredWindowsMessage
 
 				if (bMouseUp)
 				{
-					return MessageHandler->OnMouseUp( MouseButton, CursorPos ) ? 0 : 1;
+					//return MessageHandler->OnMouseUp( MouseButton, CursorPos ) ? 0 : 1;
+					if (bCancelMouseUpOnce)
+					{
+						bCancelMouseUpOnce = false;
+					}
+					else
+					{
+						return MessageHandler->OnMouseUp(MouseButton, CursorPos) ? 0 : 1;
+					}
 				}
 				else if (bDoubleClick)
 				{
-					MessageHandler->OnMouseDoubleClick( CurrentNativeEventWindowPtr, MouseButton, CursorPos );
+					//MessageHandler->OnMouseDoubleClick( CurrentNativeEventWindowPtr, MouseButton, CursorPos );
+					if (bCancelMouseDownOnce)
+					{
+						bCancelMouseDownOnce = false;
+					}
+					else
+					{
+						MessageHandler->OnMouseDoubleClick(CurrentNativeEventWindowPtr, MouseButton, CursorPos);
+					}
 				}
 				else
 				{
-					MessageHandler->OnMouseDown( CurrentNativeEventWindowPtr, MouseButton, CursorPos );
+					//MessageHandler->OnMouseDown( CurrentNativeEventWindowPtr, MouseButton, CursorPos );
+					if (bCancelMouseDownOnce)
+					{
+						bCancelMouseDownOnce = false;
+					}
+					else
+					{
+						MessageHandler->OnMouseDown(CurrentNativeEventWindowPtr, MouseButton, CursorPos);
+					}
 				}
 				return 0;
 			}
@@ -2044,7 +2069,7 @@ int32 FWindowsApplication::ProcessDeferredMessage( const FDeferredWindowsMessage
 								{
 									TouchIndex = GetFirstFreeTouchIndex();
 									check(TouchIndex >= 0);
-									
+									bCancelMouseDownOnce = true;
 									TouchIDs[TouchIndex] = TOptional<int32>(Input.dwID);
 									UE_LOG(LogWindowsDesktop, Verbose, TEXT("OnTouchStarted at (%f, %f), finger %d (system touch id %d)"), Location.X, Location.Y, TouchIndex, Input.dwID);
 									MessageHandler->OnTouchStarted(CurrentNativeEventWindowPtr, Location, 1.0f, TouchIndex, 0);
@@ -2068,6 +2093,7 @@ int32 FWindowsApplication::ProcessDeferredMessage( const FDeferredWindowsMessage
 								int32 TouchIndex = GetTouchIndexForID( Input.dwID );
 								if ( TouchIndex >= 0 )
 								{
+									bCancelMouseUpOnce = true;
 									TouchIDs[TouchIndex] = TOptional<int32>();
 									UE_LOG(LogWindowsDesktop, Verbose, TEXT("OnTouchEnded at (%f, %f), finger %d (system touch id %d)"), Location.X, Location.Y, TouchIndex, Input.dwID);
 									MessageHandler->OnTouchEnded(Location, TouchIndex, 0);
