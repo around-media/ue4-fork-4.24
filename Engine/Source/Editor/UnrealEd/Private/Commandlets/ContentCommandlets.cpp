@@ -1284,6 +1284,16 @@ bool UResavePackagesCommandlet::CheckoutFile(const FString& Filename, bool bAddF
 	//FString FullPath = FPaths::ConvertRelativePathToFull(StreamingLevelPackageFilename);
 	ISourceControlProvider& SourceControlProvider = ISourceControlModule::Get().GetProvider();
 	FSourceControlStatePtr SourceControlState = SourceControlProvider.GetState(*Filename, EStateCacheUsage::ForceUpdate);
+
+	// AMCHANGE begin: Only repackage specific sub-levels
+	// If there is no source control setup, say that the checkout succeeded instead of failed.
+	// We can assume that the actions you would do on a checked out file are doable on a file that is not under version control
+	if (!SourceControlState.IsValid())
+	{
+		return true;
+	}
+	// AMCHANGE end
+
 	if (SourceControlState.IsValid())
 	{
 		FString CurrentlyCheckedOutUser;
