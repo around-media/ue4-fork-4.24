@@ -1535,7 +1535,7 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 
 		//AMCHANGE_begin: 
 		//#AMCHANGE Only re-save specific sublevels
-		TArray<ULevelStreaming*> LevelStreamingsToRebuild;
+		TArray<ULevelStreaming*> StreamingLevelsToRebuild;
 		//AMCHANGE_end
 
 		if (bShouldProceedWithRebuild)
@@ -1622,7 +1622,7 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 				//#AMCHANGE Only repackage specific sub-levels
 				StreamingLevel->bShouldBeVisibleInEditor = true;
 
-				LevelStreamingsToRebuild.Add(StreamingLevel);
+				StreamingLevelsToRebuild.Add(StreamingLevel);
 				//AMCHANGE_end
 			}
 		}
@@ -1745,7 +1745,7 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 				//#AMCHANGE Only repackage specific sub-levels
 				LightingOptions.bOnlyBuildSelectedLevels = true;
 				LightingOptions.SelectedLevels.Add(World->PersistentLevel);
-				for (ULevelStreaming* LevelStreaming : LevelStreamingsToRebuild)
+				for (ULevelStreaming* LevelStreaming : StreamingLevelsToRebuild)
 				{
 					LightingOptions.SelectedLevels.Add(LevelStreaming->GetLoadedLevel());
 				}
@@ -1808,7 +1808,7 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 			{
 				// AMCHANGE begin: Only repackage specific sub-levels
 				// Only save the packages that were repackaged
-				for (ULevelStreaming* NextStreamingLevel : LevelStreamingsToRebuild)
+				for (ULevelStreaming* NextStreamingLevel : StreamingLevelsToRebuild)
 				// AMCHANGE end
 				{
 					FString StreamingLevelPackageFilename;
