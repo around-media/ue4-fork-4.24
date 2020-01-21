@@ -1796,7 +1796,10 @@ void UResavePackagesCommandlet::PerformAdditionalOperations(class UWorld* World,
 			// If everything is a success, resave the levels.
 			if( bShouldProceedWithRebuild )
 			{
-				for (ULevelStreaming* NextStreamingLevel : World->GetStreamingLevels())
+				// AMCHANGE begin: Only repackage specific sub-levels
+				// Only save the packages that were repackaged
+				for (ULevelStreaming* NextStreamingLevel : LevelStreamingsToRebuild)
+				// AMCHANGE end
 				{
 					FString StreamingLevelPackageFilename;
 					const FString StreamingLevelWorldAssetPackageName = NextStreamingLevel->GetWorldAssetPackageName();
