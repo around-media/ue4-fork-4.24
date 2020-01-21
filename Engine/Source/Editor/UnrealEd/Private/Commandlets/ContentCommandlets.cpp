@@ -125,10 +125,10 @@ int32 UResavePackagesCommandlet::InitializeResaveParameters( const TArray<FStrin
             }
 			bExplicitPackages = true;
 		}
-		else if (FParse::Value(*CurrentSwitch, TEXT("MAP="), Maps))
+		//AMCHANGE_begin:
+		//#AMCHANGE Only re-package specific sub-levels
+		else if (FParse::Value(*CurrentSwitch, TEXT("MAP="), Maps, false))
 		{
-			//AMCHANGE_begin: 
-			//#AMCHANGE Only re-package specific sub-levels
 			TArray<FMapToRepackage> MapsToRepackage;
 			FindMapToRebuildFromParameters(Maps, MapsToRepackage);
 
