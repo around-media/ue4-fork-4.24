@@ -702,12 +702,14 @@ bool FDeferredShadingSceneRenderer::GatherRayTracingWorldInstances(FRHICommandLi
 				{
 					continue;
 				}
-
+				//AMCHANGE_begin
+				//#AMCHANGE Allow SceneCapture ray tracing if console variable is enabled
 				if ((View.bIsReflectionCapture && !SceneInfo->bIsVisibleInReflectionCaptures)
 					|| (View.bIsSceneCapture && GRayTracingSceneCaptures == 0))
 				{
 					continue;
 				}
+				//AMCHANGE_end
 
 				//#dxr_todo UE-68621  The Raytracing codepath does not support Showflags since data moved to the SceneInfo. 
 				//Touching the SceneProxy to determine this would simply cost too much
