@@ -81,7 +81,7 @@ void FDisplayClusterClusterNodeCtrlMaster::GetTimecode(FTimecode& Timecode, FFra
 		CachedTimecode  = FApp::GetTimecode();
 		CachedFramerate = FApp::GetTimecodeFrameRate();
 
-		UE_LOG(LogDisplayClusterCluster, Verbose, TEXT("GetTimecode cached values: Timecode %s, FrameRate %s"), *CachedTimecode.ToString(), *FDisplayClusterTypesConverter::ToString(CachedFramerate));
+		UE_LOG(LogDisplayClusterCluster, Verbose, TEXT("GetTimecode cached values: Timecode %s, FrameRate %s"), *CachedTimecode.ToString(), *FDisplayClusterTypesConverter::template ToString(CachedFramerate));
 
 		CachedTimeCodeFrameRateEvent->Trigger();
 	}
