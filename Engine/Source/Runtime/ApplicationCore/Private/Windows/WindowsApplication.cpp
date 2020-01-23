@@ -96,9 +96,9 @@ FWindowsApplication::FWindowsApplication(const HINSTANCE HInstance, const HICON 
 		TEXT("Slate.DeferWindowsMessageProcessing"),
 		bAllowedToDeferMessageProcessing,
 		TEXT("Whether windows message processing is deferred until tick or if they are processed immediately"))
-	, bInModalSizeLoop(false)
 	, bCancelMouseDownOnce(false)
 	, bCancelMouseUpOnce(false)
+	, bInModalSizeLoop(false)
 #if WITH_ACCESSIBILITY
 	, UIAManager(new FWindowsUIAManager(*this))
 #endif
