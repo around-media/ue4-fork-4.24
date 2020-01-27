@@ -14,6 +14,7 @@
 
 #pragma push_macro("OVERRIDE")
 #undef OVERRIDE // cef headers provide their own OVERRIDE macro
+#define OVERRIDE override
 THIRD_PARTY_INCLUDES_START
 #if PLATFORM_APPLE
 	PRAGMA_DISABLE_DEPRECATION_WARNINGS
@@ -144,6 +145,7 @@ public:
 	virtual bool OnTooltip(CefRefPtr<CefBrowser> Browser, CefString& Text) override;
 	virtual bool OnConsoleMessage(
 		CefRefPtr<CefBrowser> Browser, 
+		cef_log_severity_t level,
 		const CefString& Message, 
 		const CefString& Source, 
 		int Line) override;
@@ -212,7 +214,7 @@ public:
 
 	// CefRenderHandler Interface
 	virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> Browser, CefRect& Rect) override;
-	virtual bool GetViewRect(CefRefPtr<CefBrowser> Browser, CefRect& Rect) override;
+	virtual void GetViewRect(CefRefPtr<CefBrowser> Browser, CefRect& Rect) override;
 	virtual void OnPaint(CefRefPtr<CefBrowser> Browser,
 		PaintElementType Type,
 		const RectList& DirtyRects,
@@ -251,6 +253,7 @@ public:
 	virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> Browser,
 		CefRefPtr<CefFrame> Frame,
 		CefRefPtr<CefRequest> Request,
+		bool user_gesture,
 		bool IsRedirect) override;
 	virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
 		CefRefPtr<CefBrowser> Browser,

@@ -61,7 +61,9 @@ bool FCEFBrowserHandler::OnTooltip(CefRefPtr<CefBrowser> Browser, CefString& Tex
 	return false;
 }
 
-bool FCEFBrowserHandler::OnConsoleMessage(CefRefPtr<CefBrowser> Browser, const CefString& Message, const CefString& Source, int Line)
+bool FCEFBrowserHandler::OnConsoleMessage(CefRefPtr<CefBrowser> Browser, 
+	cef_log_severity_t level,
+	const CefString& Message, const CefString& Source, int Line)
 {
 	ConsoleMessageDelegate.ExecuteIfBound(Browser, Message, Source, Line);
 	// Return false to let it output to console.
@@ -280,17 +282,17 @@ bool FCEFBrowserHandler::GetRootScreenRect(CefRefPtr<CefBrowser> Browser, CefRec
 	return true;
 }
 
-bool FCEFBrowserHandler::GetViewRect(CefRefPtr<CefBrowser> Browser, CefRect& Rect)
+void FCEFBrowserHandler::GetViewRect(CefRefPtr<CefBrowser> Browser, CefRect& Rect)
 {
 	TSharedPtr<FCEFWebBrowserWindow> BrowserWindow = BrowserWindowPtr.Pin();
 
 	if (BrowserWindow.IsValid())
 	{
-		return BrowserWindow->GetViewRect(Rect);
+		BrowserWindow->GetViewRect(Rect);
 	}
 	else
 	{
-		return false;
+		return;
 	}
 }
 
@@ -474,6 +476,7 @@ void FCEFBrowserHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> Browser
 bool FCEFBrowserHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> Browser,
 	CefRefPtr<CefFrame> Frame,
 	CefRefPtr<CefRequest> Request,
+	bool user_gesture,
 	bool IsRedirect)
 {
 	// Current thread: UI thread
@@ -549,11 +552,11 @@ bool FCEFBrowserHandler::ShowDevTools(const CefRefPtr<CefBrowser>& Browser)
 	PopupFeatures.ySet = false;
 	PopupFeatures.heightSet = false;
 	PopupFeatures.widthSet = false;
-	PopupFeatures.locationBarVisible = false;
+	//PopupFeatures.locationBarVisible = false;
 	PopupFeatures.menuBarVisible = false;
 	PopupFeatures.toolBarVisible  = false;
 	PopupFeatures.statusBarVisible  = false;
-	PopupFeatures.resizable = true;
+	//PopupFeatures.resizable = true;
 
 	// Set max framerate to maximum supported.
 	BrowserSettings.windowless_frame_rate = 60;

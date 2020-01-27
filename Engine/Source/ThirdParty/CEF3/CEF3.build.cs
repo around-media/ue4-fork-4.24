@@ -9,7 +9,7 @@ public class CEF3 : ModuleRules
 	public CEF3(ReadOnlyTargetRules Target) : base(Target)
 	{
 		/** Mark the current version of the library */
-		string CEFVersion = "3.3071.1611.g4a19305";
+		string CEFVersion = "3.3683.1920.g9f41a27";
 		string CEFPlatform = "";
 
 		Type = ModuleType.External;
@@ -28,7 +28,7 @@ public class CEF3 : ModuleRules
 		}
 		else if(Target.Platform == UnrealTargetPlatform.Linux)
 		{
-			CEFVersion = "3.2623.1395.g3034273";
+			//CEFVersion = "3.2623.1395.g3034273";
 			CEFPlatform = "linux64";
 		}
 

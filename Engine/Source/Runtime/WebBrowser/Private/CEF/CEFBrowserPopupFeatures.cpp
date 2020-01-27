@@ -38,11 +38,11 @@ FCEFBrowserPopupFeatures::FCEFBrowserPopupFeatures( const CefPopupFeatures& Popu
 	bMenuBarVisible = PopupFeatures.menuBarVisible ? true : false;
 	bStatusBarVisible = PopupFeatures.statusBarVisible ? true : false;
 	bToolBarVisible = PopupFeatures.toolBarVisible ? true : false;
-	bLocationBarVisible = PopupFeatures.locationBarVisible ? true : false;
+	//bLocationBarVisible = PopupFeatures.locationBarVisible ? true : false;
 	bScrollbarsVisible = PopupFeatures.scrollbarsVisible ? true : false;
-	bResizable = PopupFeatures.resizable ? true : false;
-	bIsFullscreen = PopupFeatures.fullscreen ? true : false;
-	bIsDialog = PopupFeatures.dialog ? true : false;
+	//bResizable = PopupFeatures.resizable ? true : false;
+	//bIsFullscreen = PopupFeatures.fullscreen ? true : false;
+	//bIsDialog = PopupFeatures.dialog ? true : false;
 }
 
 FCEFBrowserPopupFeatures::~FCEFBrowserPopupFeatures()
