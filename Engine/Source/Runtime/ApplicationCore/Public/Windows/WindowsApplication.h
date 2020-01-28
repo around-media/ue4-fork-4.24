@@ -449,9 +449,11 @@ private:
 
 private:
 
+//AMCHANGE_Begin
 	bool bCancelMouseDownOnce;
 
 	bool bCancelMouseUpOnce;
+//AMCHANGE_End
 
 	static const FIntPoint MinimizedWindowPosition;
 
