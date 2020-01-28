@@ -150,6 +150,18 @@ static TAutoConsoleVariable<int32> CVarForceAllRayTracingEffects(
 	TEXT(" 1: All ray tracing effects enabled"),
 	ECVF_RenderThreadSafe);
 
+//AMCHANGE_begin
+//#AMCHANGE Allow SceneCapture ray tracing if console variable is enabled
+static int32 GRayTracingSceneCaptures = 1;
+static FAutoConsoleVariableRef CVarRayTracingSceneCaptures(
+	TEXT("r.RayTracing.SceneCaptures"),
+	GRayTracingSceneCaptures,
+	TEXT("Enable ray tracing in scene captures.\n")
+	TEXT(" 0: off \n")
+	TEXT(" 1: on (default)"),
+	ECVF_RenderThreadSafe);
+//AMCHANGE_end
+
 static int32 GRayTracingExcludeDecals = 0;
 static FAutoConsoleVariableRef CRayTracingExcludeDecals(
 	TEXT("r.RayTracing.ExcludeDecals"),
@@ -687,12 +699,14 @@ bool FDeferredShadingSceneRenderer::GatherRayTracingWorldInstances(FRHICommandLi
 				{
 					continue;
 				}
-
+				//AMCHANGE_begin
+				//#AMCHANGE Allow SceneCapture ray tracing if console variable is enabled
 				if ((View.bIsReflectionCapture && !SceneInfo->bIsVisibleInReflectionCaptures)
-					|| View.bIsSceneCapture)
+					|| (View.bIsSceneCapture && GRayTracingSceneCaptures == 0))
 				{
 					continue;
 				}
+				//AMCHANGE_end
 
 				//#dxr_todo UE-68621  The Raytracing codepath does not support Showflags since data moved to the SceneInfo. 
 				//Touching the SceneProxy to determine this would simply cost too much
