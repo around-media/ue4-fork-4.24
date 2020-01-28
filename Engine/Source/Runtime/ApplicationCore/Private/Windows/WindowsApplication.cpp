@@ -96,8 +96,10 @@ FWindowsApplication::FWindowsApplication(const HINSTANCE HInstance, const HICON 
 		TEXT("Slate.DeferWindowsMessageProcessing"),
 		bAllowedToDeferMessageProcessing,
 		TEXT("Whether windows message processing is deferred until tick or if they are processed immediately"))
+//AMCHANGE_Begin
 	, bCancelMouseDownOnce(false)
 	, bCancelMouseUpOnce(false)
+//AMCHANGE_End
 	, bInModalSizeLoop(false)
 #if WITH_ACCESSIBILITY
 	, UIAManager(new FWindowsUIAManager(*this))
@@ -1956,6 +1958,7 @@ int32 FWindowsApplication::ProcessDeferredMessage( const FDeferredWindowsMessage
 
 				if (bMouseUp)
 				{
+//AMCHANGE_Begin
 					//return MessageHandler->OnMouseUp( MouseButton, CursorPos ) ? 0 : 1;
 					if (bCancelMouseUpOnce)
 					{
@@ -1985,6 +1988,7 @@ int32 FWindowsApplication::ProcessDeferredMessage( const FDeferredWindowsMessage
 					{
 						bCancelMouseDownOnce = false;
 					}
+//AMCHANGE_End
 					else
 					{
 						MessageHandler->OnMouseDown(CurrentNativeEventWindowPtr, MouseButton, CursorPos);
@@ -2069,7 +2073,9 @@ int32 FWindowsApplication::ProcessDeferredMessage( const FDeferredWindowsMessage
 								{
 									TouchIndex = GetFirstFreeTouchIndex();
 									check(TouchIndex >= 0);
+//AMCHANGE_Begin
 									bCancelMouseDownOnce = true;
+//AMCHANGE_End
 									TouchIDs[TouchIndex] = TOptional<int32>(Input.dwID);
 									UE_LOG(LogWindowsDesktop, Verbose, TEXT("OnTouchStarted at (%f, %f), finger %d (system touch id %d)"), Location.X, Location.Y, TouchIndex, Input.dwID);
 									MessageHandler->OnTouchStarted(CurrentNativeEventWindowPtr, Location, 1.0f, TouchIndex, 0);
@@ -2093,7 +2099,9 @@ int32 FWindowsApplication::ProcessDeferredMessage( const FDeferredWindowsMessage
 								int32 TouchIndex = GetTouchIndexForID( Input.dwID );
 								if ( TouchIndex >= 0 )
 								{
+//AMCHANGE_Begin
 									bCancelMouseUpOnce = true;
+//AMCHANGE_End
 									TouchIDs[TouchIndex] = TOptional<int32>();
 									UE_LOG(LogWindowsDesktop, Verbose, TEXT("OnTouchEnded at (%f, %f), finger %d (system touch id %d)"), Location.X, Location.Y, TouchIndex, Input.dwID);
 									MessageHandler->OnTouchEnded(Location, TouchIndex, 0);
