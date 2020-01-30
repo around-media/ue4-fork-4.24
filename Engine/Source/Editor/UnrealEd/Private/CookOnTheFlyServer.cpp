@@ -5586,6 +5586,7 @@ void UCookOnTheFlyServer::GenerateLongPackageNames(TArray<FName>& FilesInPath)
 	FilesInPath.Append(FilesInPathReverse);
 }
 
+//AMCHANGE_begin
 void UCookOnTheFlyServer::EmptyPackageLists()
 {
 	// We empty this list because otherwise it results in certain assets not cooked
@@ -5594,7 +5595,16 @@ void UCookOnTheFlyServer::EmptyPackageLists()
 	// We empty these lists because otherwise too many items are cooked
 	PackageTracker->LoadedPackages.Empty();
 	PackageTracker->NewPackages.Empty();
+
+	// We don't to want startup packages because they only contain assets that are included with the base game.
+	CookByTheBookOptions->StartupPackages.Empty();
+
+	//Calling this removes the default startup packages from the internal map in the GRedirectCollector
+	TSet<FName> StartupPackageNames;
+	GRedirectCollector.ProcessSoftObjectPathPackageList(NAME_None, false, StartupPackageNames);
+
 }
+//AMCHANGE_end
 
 void UCookOnTheFlyServer::AddFileToCook( TArray<FName>& InOutFilesToCook, const FString &InFilename ) const
 { 
@@ -7142,6 +7152,10 @@ void UCookOnTheFlyServer::StartCookByTheBook( const FCookByTheBookStartupOptions
 	TArray<FName> FilesInPath;
 	TSet<FName> StartupSoftObjectPackages;
 
+//AMCHANGE_Begin
+// Change the order so we can clear the startup packages in collectfilestocook function
+	CollectFilesToCook(FilesInPath, CookMaps, CookDirectories, IniMapSections, CookOptions);
+
 	// Get the list of soft references, for both empty package and all startup packages
 	GRedirectCollector.ProcessSoftObjectPathPackageList(NAME_None, false, StartupSoftObjectPackages);
 
@@ -7150,7 +7164,8 @@ void UCookOnTheFlyServer::StartCookByTheBook( const FCookByTheBookStartupOptions
 		GRedirectCollector.ProcessSoftObjectPathPackageList(StartupPackage, false, StartupSoftObjectPackages);
 	}
 
-	CollectFilesToCook(FilesInPath, CookMaps, CookDirectories, IniMapSections, CookOptions);
+	
+//AMCHANGE_End
 
 	// Add string asset packages after collecting files, to avoid accidentally activating the behavior to cook all maps if none are specified
 	for (FName SoftObjectPackage : StartupSoftObjectPackages)
