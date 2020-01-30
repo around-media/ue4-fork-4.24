@@ -367,8 +367,11 @@ public:
 
 	/**
 	* Get any packages which are in memory, these were probably required to be loaded because of the current package we are cooking, so we should probably cook them also
-	*/
-	TArray<UPackage*> GetUnsolicitedPackages(const TArray<FName>& TargetPlatformNames) const;
+	*/	
+//AMCHANGE_begin
+//#AMCHANGE Set to virtual to change it in child class
+	virtual TArray<UPackage*> GetUnsolicitedPackages(const TArray<FName>& TargetPlatformNames) const;
+//AMCHANGE_end
 
 	/**
 	* PostLoadPackageFixup
