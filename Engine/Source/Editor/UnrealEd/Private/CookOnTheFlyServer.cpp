@@ -5596,12 +5596,12 @@ void UCookOnTheFlyServer::EmptyPackageLists()
 	PackageTracker->LoadedPackages.Empty();
 	PackageTracker->NewPackages.Empty();
 
-	// We don't to want startup packages
+	// We don't to want startup packages because they only contain assets that are included with the base game.
 	CookByTheBookOptions->StartupPackages.Empty();
 
 	//Calling this removes the default startup packages from the internal map in the GRedirectCollector
-	TSet<FName> StartupSoftObjectPackages;
-	GRedirectCollector.ProcessSoftObjectPathPackageList(NAME_None, false, StartupSoftObjectPackages);
+	TSet<FName> StartupPackageNames;
+	GRedirectCollector.ProcessSoftObjectPathPackageList(NAME_None, false, StartupPackageNames);
 
 }
 //AMCHANGE_end
