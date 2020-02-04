@@ -670,35 +670,27 @@ void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 			PreExposure = GetEyeAdaptationFixedExposure(View);
 		}
 	}
-	else
+	else if (bIsPreExposureRelevant)
 	{
-
-
-		if (bIsPreExposureRelevant)
+		if (UsePreExposure(View.GetShaderPlatform()))
 		{
-			if (UsePreExposure(View.GetShaderPlatform())
-				|| CVarEyeAdaptationReadback->GetInt() != 0
-				)
+			const float PreExposureOverride = CVarEyeAdaptationPreExposureOverride.GetValueOnRenderThread();
+			const float LastExposure = View.GetLastEyeAdaptationExposure();
+			if (PreExposureOverride > 0)
 			{
-				const float PreExposureOverride = CVarEyeAdaptationPreExposureOverride.GetValueOnRenderThread();
-				const float LastExposure = View.GetLastEyeAdaptationExposure();
-				if (PreExposureOverride > 0)
-				{
-					PreExposure = PreExposureOverride;
-				}
-				else if (LastExposure > 0)
-				{
-					PreExposure = LastExposure;
-				}
+				PreExposure = PreExposureOverride;
+			}
+			else if (LastExposure > 0)
+			{
+				PreExposure = LastExposure;
+			}
 
-				bUpdateLastExposure = true;
-			}
-			// The exposure compensation curves require the scene average luminance
-			else if (View.FinalPostProcessSettings.AutoExposureBiasCurve)
-			{
-				bUpdateLastExposure = true;
-			}
-			
+			bUpdateLastExposure = true;
+		}
+		// The exposure compensation curves require the scene average luminance
+		else if (View.FinalPostProcessSettings.AutoExposureBiasCurve)
+		{
+			bUpdateLastExposure = true;
 		}
 	}
 
