@@ -43,12 +43,14 @@ TAutoConsoleVariable<int32> CVarEyeAdaptationBasicCompute(
 	TEXT("> 0 : Compute Shader (default) \n"),
 	ECVF_Scalability | ECVF_RenderThreadSafe);
 
+//AMCHANGE_begin
+//#AMCHANGE Removed the readonly flag as we use PreExposure in the TileCapturer
 static TAutoConsoleVariable<int32> CVarEnablePreExposureOnlyInTheEditor(
 	TEXT("r.EyeAdaptation.EditorOnly"),
 	1,
 	TEXT("When pre-exposure is enabled, 0 to enable it everywhere, 1 to enable it only in the editor (default).\n")
-	TEXT("This is to because it currently has an impact on the renderthread performance\n"),
-	ECVF_ReadOnly);
+	TEXT("This is to because it currently has an impact on the renderthread performance\n"));
+//AMCHANGE_end
 const ERHIFeatureLevel::Type BasicEyeAdaptationMinFeatureLevel = ERHIFeatureLevel::ES3_1;
 }
 
@@ -631,20 +633,11 @@ TRefCountPtr<IPooledRenderTarget>& FSceneViewState::FEyeAdaptationRTManager::Get
 	return PooledRenderTarget[BufferNumber];
 }
 
-//AMCHANGE_begin
-//#AMCHANGE Changes needed to 'lock' the eye adaptation exposure when creating renders
 TAutoConsoleVariable<int> CVarEyeAdaptationReadback(
 	TEXT("r.EyeAdaptation.Readback"),
 	1,
 	TEXT("If enabled, always read back the latest exposure value (not only when pre-exposure is enabled)"),
 	ECVF_RenderThreadSafe);
-
-float GLastExposure = 0;
-float GetLatestExposure()
-{
-	return GLastExposure;
-}
-//AMCHANGE_end
 
 void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 {
@@ -677,42 +670,29 @@ void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 			PreExposure = GetEyeAdaptationFixedExposure(View);
 		}
 	}
-	//AMCHANGE_begin: 
-	//#AMCHANGE Changes needed to 'lock' the eye adaptation exposure when creating renders
-
-	else
+	else if (bIsPreExposureRelevant)
 	{
-
-
-		if (bIsPreExposureRelevant)
+		if (UsePreExposure(View.GetShaderPlatform()))
 		{
-			if (UsePreExposure(View.GetShaderPlatform())
-				|| CVarEyeAdaptationReadback->GetInt() != 0
-				)
+			const float PreExposureOverride = CVarEyeAdaptationPreExposureOverride.GetValueOnRenderThread();
+			const float LastExposure = View.GetLastEyeAdaptationExposure();
+			if (PreExposureOverride > 0)
 			{
-				const float PreExposureOverride = CVarEyeAdaptationPreExposureOverride.GetValueOnRenderThread();
-				const float LastExposure = View.GetLastEyeAdaptationExposure();
-				if (PreExposureOverride > 0)
-				{
-					PreExposure = PreExposureOverride;
-				}
-				else if (LastExposure > 0)
-				{
-					PreExposure = LastExposure;
-				}
+				PreExposure = PreExposureOverride;
+			}
+			else if (LastExposure > 0)
+			{
+				PreExposure = LastExposure;
+			}
 
-				bUpdateLastExposure = true;
-				GLastExposure = LastExposure;
-			}
-			// The exposure compensation curves require the scene average luminance
-			else if (View.FinalPostProcessSettings.AutoExposureBiasCurve)
-			{
-				bUpdateLastExposure = true;
-			}
-			
+			bUpdateLastExposure = true;
+		}
+		// The exposure compensation curves require the scene average luminance
+		else if (View.FinalPostProcessSettings.AutoExposureBiasCurve)
+		{
+			bUpdateLastExposure = true;
 		}
 	}
-	//AMCHANGE_end
 
 	// Update the pre-exposure value on the actual view
 	View.PreExposure = PreExposure;
