@@ -633,11 +633,14 @@ TRefCountPtr<IPooledRenderTarget>& FSceneViewState::FEyeAdaptationRTManager::Get
 	return PooledRenderTarget[BufferNumber];
 }
 
+//AMCHANGE_begin
+//#AMCHANGE Changes needed to 'lock' the eye adaptation exposure when creating renders
 TAutoConsoleVariable<int> CVarEyeAdaptationReadback(
 	TEXT("r.EyeAdaptation.Readback"),
 	1,
 	TEXT("If enabled, always read back the latest exposure value (not only when pre-exposure is enabled)"),
 	ECVF_RenderThreadSafe);
+//AMCHANGE_end
 
 void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 {
@@ -672,7 +675,11 @@ void FSceneViewState::UpdatePreExposure(FViewInfo& View)
 	}
 	else if (bIsPreExposureRelevant)
 	{
-		if (UsePreExposure(View.GetShaderPlatform()))
+		if (UsePreExposure(View.GetShaderPlatform())
+			//AMCHANGE_begin
+			//#AMCHANGE Changes needed to 'lock' the eye adaptation exposure when creating renders
+			|| CVarEyeAdaptationReadback->GetInt() != 0)
+			//AMCHANGE_end
 		{
 			const float PreExposureOverride = CVarEyeAdaptationPreExposureOverride.GetValueOnRenderThread();
 			const float LastExposure = View.GetLastEyeAdaptationExposure();
