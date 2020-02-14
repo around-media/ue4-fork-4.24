@@ -25,7 +25,20 @@ void FCurlHttpThread::HttpThreadTick(float DeltaSeconds)
 			int RunningRequests = -1;
 			{
 				QUICK_SCOPE_CYCLE_COUNTER(STAT_FCurlHttpThread_HttpThreadTick_Perform);
-				curl_multi_perform(FCurlHttpManager::GMultiHandle, &RunningRequests);
+				
+				//AMCHANGE_begin: 
+				//#AMCHANGE CurlHttp is by default much slower to download big files than the old WinInet that was used in UE4.19
+				// This is a temporary workaround to bring the download speed to a similar rate as WinInet. 
+				// This is why 10 was chosen as number, only through trial and errors.
+				// You can follow the exact reasons why this is needed in two places: 
+				// UDN: https://udn.unrealengine.com/questions/556090/view.html
+				// JIRA: https://aroundmedia.atlassian.net/browse/DS-7781
+				int8 nbOfUpdatesToExactMoreDataPerTick = 10;
+				for (int8 i = 0; i < nbOfUpdatesToExactMoreDataPerTick; ++i)
+				{
+					curl_multi_perform(FCurlHttpManager::GMultiHandle, &RunningRequests);
+				}
+				// AMCHANGE_end
 			}
 
 			// read more info if number of requests changed or if there's zero running
