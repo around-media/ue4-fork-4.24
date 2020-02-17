@@ -1,0 +1,20 @@
+name: trigger engine jenkins job
+on:
+  # Trigger the workflow on push,
+  # but only for the addChangesFromVXGI4.19 branch
+  push:
+    branches:
+      - Features/addChangesFromVXGI4.19
+jobs:
+  curl:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: jenkins
+      uses: enflo/jenkins-action@master
+      with:
+        url: "http://jenkins.vr-tual.media:8080"
+        user: "alfred"
+        token: ${{ secrets.JENKINS_TOKEN }}
+        job: "/job/engine-build-pipeline"
+        parameters: "Engine%20archive%20name="
