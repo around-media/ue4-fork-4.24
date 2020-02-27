@@ -46,6 +46,10 @@ struct FD3D12_GRAPHICS_PIPELINE_STATE_DESC
 	D3D12_SHADER_BYTECODE DS;
 	D3D12_SHADER_BYTECODE HS;
 	D3D12_SHADER_BYTECODE GS;
+	//AMCHANGE_begin
+    //#AMCHANGE Fix for crash on servers, this field is defined in DX12 API, but wasn't included in the ue4 implementation of it. Adding it fixed the crash
+	D3D12_STREAM_OUTPUT_DESC StreamOutput;
+	//AMCHANGE_end
 #if !D3D12_USE_DERIVED_PSO
 	D3D12_BLEND_DESC BlendState;
 	uint32 SampleMask;

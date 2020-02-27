@@ -80,6 +80,10 @@ D3D12_GRAPHICS_PIPELINE_STATE_DESC FD3D12_GRAPHICS_PIPELINE_STATE_DESC::Graphics
 	D.HS = this->HS;
 	D.DS = this->DS;
 	D.PS = this->PS;
+	//AMCHANGE_begin
+	//#AMCHANGE Fix for crash on servers, this field is defined in DX12 API, but wasn't included in the ue4 implementation of it. Adding it fixed the crash
+	D.StreamOutput = this->StreamOutput;
+	//AMCHANGE_end
 	D.BlendState = this->BlendState;
 	D.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC1(this->DepthStencilState);
 	D.DSVFormat = this->DSVFormat;
