@@ -80,6 +80,11 @@ D3D12_GRAPHICS_PIPELINE_STATE_DESC FD3D12_GRAPHICS_PIPELINE_STATE_DESC::Graphics
 	D.HS = this->HS;
 	D.DS = this->DS;
 	D.PS = this->PS;
+	//AMCHANGE_begin
+	//#AMCHANGE Fix for crash on cards used on streaming servers (e.g. NVIDIA M60 or P4 cards), this field is defined in DX12 API, but wasn't included in the ue4 implementation of it. 
+	// These cards don't use the 'pipeline streams' flow (used on most cards), so it only crashes on these cards. Adding the missing field fixed the crash
+	D.StreamOutput = this->StreamOutput;
+	//AMCHANGE_end
 	D.BlendState = this->BlendState;
 	D.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC1(this->DepthStencilState);
 	D.DSVFormat = this->DSVFormat;
