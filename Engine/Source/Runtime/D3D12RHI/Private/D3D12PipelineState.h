@@ -47,7 +47,8 @@ struct FD3D12_GRAPHICS_PIPELINE_STATE_DESC
 	D3D12_SHADER_BYTECODE HS;
 	D3D12_SHADER_BYTECODE GS;
 	//AMCHANGE_begin
-    //#AMCHANGE Fix for crash on servers, this field is defined in DX12 API, but wasn't included in the ue4 implementation of it. Adding it fixed the crash
+	//#AMCHANGE Fix for crash on cards used on streaming servers (e.g. NVIDIA M60 or P4 cards), this field is defined in DX12 API, but wasn't included in the ue4 implementation of it. 
+	// These cards don't use the 'pipeline streams' flow (used on most cards), so it only crashes on these cards. Adding the missing field fixed the crash
 	D3D12_STREAM_OUTPUT_DESC StreamOutput;
 	//AMCHANGE_end
 #if !D3D12_USE_DERIVED_PSO
