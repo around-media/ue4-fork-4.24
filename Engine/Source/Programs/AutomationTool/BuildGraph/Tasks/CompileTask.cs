@@ -10,11 +10,6 @@ using AutomationTool;
 using System.Xml;
 using Tools.DotNETCommon;
 
-//AMCHANGE_begin: 
-//#AMCHANGE  Changed Automation tool to fill in projectfilename in file path. So buildgraph works with installed engines.
-using System.IO;
-//AMCHANGE_end
-
 namespace AutomationTool
 {
 	/// <summary>
@@ -90,7 +85,7 @@ namespace AutomationTool
 		/// <summary>
 		/// Mapping of receipt filename to its corresponding tag name
 		/// </summary>
-		Dictionary<UE4Build.BuildTarget, string> TargetToTagName = new Dictionary<UE4Build.BuildTarget,string>();
+		Dictionary<UE4Build.BuildTarget, string> TargetToTagName = new Dictionary<UE4Build.BuildTarget, string>();
 
 		/// <summary>
 		/// Whether to allow using XGE for this job
@@ -111,45 +106,6 @@ namespace AutomationTool
 			Add(Task);
 		}
 
-
-		//AMCHANGE_begin
-		//#AMCHANGE Changed Automation tool to fill in projectfilename in file path. So buildgraph works with installed engines.
-		/// <summary>
-		/// Function that parses an arguments string for the project file parameter
-		/// </summary>
-		/// <param name="Arguments">string with arguments split by space</param>
-		/// <param name="Project">string with project</param>
-		/// <returns>A FileReference to the projectfile or null if it was not found.</returns>
-		public FileReference GetProjectFileReferenceFromArguments(string Arguments, string Project)
-		{
-			FileReference ProjectFileRef = null;
-
-			if (!String.IsNullOrEmpty(Arguments))
-			{
-				string[] ArgsList = Arguments.Split(' ');
-				foreach (string Arg in ArgsList)
-				{
-					if (Arg.StartsWith("-project=", StringComparison.InvariantCultureIgnoreCase))
-					{
-						string ProjectFileName = Arg.Substring(Arg.IndexOf('=') + 1).Replace("\"", "");
-						if (File.Exists(ProjectFileName))
-						{
-							ProjectFileRef = new FileReference(ProjectFileName);
-						}
-					}
-
-				}
-			}
-
-			if(ProjectFileRef == null && !String.IsNullOrEmpty(Project))
-			{
-				ProjectFileRef = new FileReference(Project);
-			}
-
-			return ProjectFileRef;
-		}
-		//AMCHANGE_end
-
 		/// <summary>
 		/// Adds another task to this executor
 		/// </summary>
@@ -158,12 +114,12 @@ namespace AutomationTool
 		public bool Add(CustomTask Task)
 		{
 			CompileTask CompileTask = Task as CompileTask;
-			if(CompileTask == null)
+			if (CompileTask == null)
 			{
 				return false;
 			}
 
-			if(Targets.Count > 0)
+			if (Targets.Count > 0)
 			{
 				if (bAllowXGE != CompileTask.Parameters.AllowXGE)
 				{
@@ -179,16 +135,7 @@ namespace AutomationTool
 			bAllowXGE &= Parameters.AllowXGE;
 			bAllowParallelExecutor &= Parameters.AllowParallelExecutor;
 
-			//AMCHANGE_begin
-			//#AMCHANGE Changed Automation tool to fill in projectfilename in file path. So buildgraph works with installed engines.
-			//Parse uproject param
-			FileReference ProjectFileRef = GetProjectFileReferenceFromArguments(Parameters.Arguments, Parameters.Project);
-			
-
-			UE4Build.BuildTarget Target = new UE4Build.BuildTarget { TargetName = Parameters.Target, Platform = Parameters.Platform, Config = Parameters.Configuration, UprojectPath = ProjectFileRef, UBTArgs = "-nobuilduht " + (Parameters.Arguments ?? ""), Clean = Parameters.Clean };
-
-			//AMCHANGE_end
-
+			UE4Build.BuildTarget Target = new UE4Build.BuildTarget { TargetName = Parameters.Target, Platform = Parameters.Platform, Config = Parameters.Configuration, UprojectPath = String.IsNullOrEmpty(Parameters.Project) ? null : new FileReference(Parameters.Project), UBTArgs = "-nobuilduht " + (Parameters.Arguments ?? ""), Clean = Parameters.Clean };
 			if (!String.IsNullOrEmpty(Parameters.Tag))
 			{
 				TargetToTagName.Add(Target, Parameters.Tag);
@@ -208,28 +155,28 @@ namespace AutomationTool
 		public void Execute(JobContext Job, HashSet<FileReference> BuildProducts, Dictionary<string, HashSet<FileReference>> TagNameToFileSet)
 		{
 			// Create the agenda
-            UE4Build.BuildAgenda Agenda = new UE4Build.BuildAgenda();
+			UE4Build.BuildAgenda Agenda = new UE4Build.BuildAgenda();
 			Agenda.Targets.AddRange(Targets);
 
 			// Build everything
-			Dictionary<UE4Build.BuildTarget, BuildManifest> TargetToManifest = new Dictionary<UE4Build.BuildTarget,BuildManifest>();
-            UE4Build Builder = new UE4Build(Job.OwnerCommand);
+			Dictionary<UE4Build.BuildTarget, BuildManifest> TargetToManifest = new Dictionary<UE4Build.BuildTarget, BuildManifest>();
+			UE4Build Builder = new UE4Build(Job.OwnerCommand);
 
-			bool bCanUseParallelExecutor = (BuildHostPlatform.Current.Platform == UnrealTargetPlatform.Win64 && bAllowParallelExecutor);	// parallel executor is only available on Windows as of 2016-09-22
+			bool bCanUseParallelExecutor = (BuildHostPlatform.Current.Platform == UnrealTargetPlatform.Win64 && bAllowParallelExecutor);    // parallel executor is only available on Windows as of 2016-09-22
 			Builder.Build(Agenda, InDeleteBuildProducts: null, InUpdateVersionFiles: false, InForceNoXGE: !bAllowXGE, InUseParallelExecutor: bCanUseParallelExecutor, InTargetToManifest: TargetToManifest);
 
 			UE4Build.CheckBuildProducts(Builder.BuildProductFiles);
 
 			// Tag all the outputs
-			foreach(KeyValuePair<UE4Build.BuildTarget, string> TargetTagName in TargetToTagName)
+			foreach (KeyValuePair<UE4Build.BuildTarget, string> TargetTagName in TargetToTagName)
 			{
 				BuildManifest Manifest;
-				if(!TargetToManifest.TryGetValue(TargetTagName.Key, out Manifest))
+				if (!TargetToManifest.TryGetValue(TargetTagName.Key, out Manifest))
 				{
 					throw new AutomationException("Missing manifest for target {0} {1} {2}", TargetTagName.Key.TargetName, TargetTagName.Key.Platform, TargetTagName.Key.Config);
 				}
 
-				foreach(string TagName in CustomTask.SplitDelimitedList(TargetTagName.Value))
+				foreach (string TagName in CustomTask.SplitDelimitedList(TargetTagName.Value))
 				{
 					HashSet<FileReference> FileSet = CustomTask.FindOrAddTagSet(TagNameToFileSet, TagName);
 					FileSet.UnionWith(Manifest.BuildProducts.Select(x => new FileReference(x)));
