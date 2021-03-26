@@ -194,7 +194,7 @@ void ServerCommandThread::RestartTargets(void)
 			// check if a VS debugger is currently attached to the process about to restart
 			const unsigned int processId = liveProcess->GetProcessId();
 			EnvDTE::DebuggerPtr debugger = visualStudio::FindDebuggerAttachedToProcess(processId);
-			if (debugger)
+			if (debugger != nullptr)
 			{
 				m_restartedProcessIdToDebugger.emplace(processId, debugger);
 			}
