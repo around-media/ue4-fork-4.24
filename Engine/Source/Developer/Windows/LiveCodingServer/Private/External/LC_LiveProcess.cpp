@@ -62,7 +62,7 @@ void LiveProcess::HandleDebuggingPreCompile(void)
 		// this process did not make progress.
 		// try to find a debugger that's currently debugging our process.
 		m_vsDebugger = visualStudio::FindDebuggerForProcess(m_processId);
-		if (m_vsDebugger)
+		if (m_vsDebugger != nullptr)
 		{
 			// found a debugger.
 			// enumerate all threads, freeze every thread but the command thread, and let the debugger resume.
@@ -101,7 +101,7 @@ void LiveProcess::HandleDebuggingPostCompile(void)
 		UninstallCodeCave();
 	}
 #if WITH_VISUALSTUDIO_DTE
-	else if (m_vsDebugger)
+	else if (m_vsDebugger != nullptr)
 	{
 		// we automated the debugger previously. break into the debugger again and resume all threads.
 		// when debugging a C# project that calls into C++ code, the VS debugger sometimes creates new MTA threads in between our PreCompile and PostCompile calls.

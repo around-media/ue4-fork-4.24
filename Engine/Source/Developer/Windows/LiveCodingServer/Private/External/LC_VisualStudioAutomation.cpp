@@ -106,7 +106,7 @@ static EnvDTE::DebuggerPtr FindDebuggerAttachedToProcess(unsigned int processId)
 
 				EnvDTE::_DTEPtr dte = nullptr;
 				result = unknown->QueryInterface(&dte);
-				if (FAILED(result) || (!dte))
+				if (FAILED(result) || (dte == nullptr))
 				{
 					// this COM object doesn't support the DTE interface
 					LC_ERROR_DEV("Could not convert IUnknown to DTE interface. Error: 0x%X", result);
@@ -115,7 +115,7 @@ static EnvDTE::DebuggerPtr FindDebuggerAttachedToProcess(unsigned int processId)
 
 				EnvDTE::DebuggerPtr debugger = nullptr;
 				result = dte->get_Debugger(&debugger);
-				if (FAILED(result) || (!debugger))
+				if (FAILED(result) || (debugger == nullptr))
 				{
 					// cannot access debugger, which means that the process is currently not being debugged
 					LC_LOG_DEV("Could not access debugger interface. Error: 0x%X", result);
@@ -125,7 +125,7 @@ static EnvDTE::DebuggerPtr FindDebuggerAttachedToProcess(unsigned int processId)
 				// fetch all processes to which this debugger is attached
 				EnvDTE::ProcessesPtr allProcesses = nullptr;
 				result = debugger->get_DebuggedProcesses(&allProcesses);
-				if (FAILED(result) || (!allProcesses))
+				if (FAILED(result) || (allProcesses == nullptr))
 				{
 					LC_ERROR_DEV("Could not retrieve processes from debugger. Error: 0x%X", result);
 					continue;
@@ -145,7 +145,7 @@ static EnvDTE::DebuggerPtr FindDebuggerAttachedToProcess(unsigned int processId)
 					EnvDTE::ProcessPtr singleProcess = nullptr;
 					result = allProcesses->Item(variant_t(i + 1), &singleProcess);
 
-					if (FAILED(result) || (!singleProcess))
+					if (FAILED(result) || (singleProcess == nullptr))
 					{
 						LC_ERROR_DEV("Could not retrieve process from debugger. Error: 0x%X", result);
 						continue;
@@ -246,7 +246,7 @@ static EnvDTE::DebuggerPtr FindDebuggerForProcess(unsigned int processId)
 
 				EnvDTE::_DTEPtr dte = nullptr;
 				result = unknown->QueryInterface(&dte);
-				if (FAILED(result) || (!dte))
+				if (FAILED(result) || (dte == nullptr))
 				{
 					// this COM object doesn't support the DTE interface
 					LC_ERROR_DEV("Could not convert IUnknown to DTE interface. Error: 0x%X", result);
@@ -255,7 +255,7 @@ static EnvDTE::DebuggerPtr FindDebuggerForProcess(unsigned int processId)
 
 				EnvDTE::DebuggerPtr debugger = nullptr;
 				result = dte->get_Debugger(&debugger);
-				if (FAILED(result) || (!debugger))
+				if (FAILED(result) || (debugger == nullptr))
 				{
 					// cannot access debugger, which means that the process is currently not being debugged
 					LC_LOG_DEV("Could not access debugger interface. Error: 0x%X", result);
@@ -264,7 +264,7 @@ static EnvDTE::DebuggerPtr FindDebuggerForProcess(unsigned int processId)
 
 				EnvDTE::ProcessPtr process = nullptr;
 				result = debugger->get_CurrentProcess(&process);
-				if (FAILED(result) || (!process))
+				if (FAILED(result) || (process == nullptr))
 				{
 					// cannot access current process, reason unknown
 					LC_ERROR_DEV("Could not access current process in debugger. Error: 0x%X", result);
@@ -305,7 +305,7 @@ static bool AttachToProcess(const EnvDTE::DebuggerPtr& debugger, unsigned int pr
 	// fetch all local processes running on this machine
 	EnvDTE::ProcessesPtr allProcesses = nullptr;
 	HRESULT result = debugger->get_LocalProcesses(&allProcesses);
-	if (FAILED(result) || (!allProcesses))
+	if (FAILED(result) || (allProcesses == nullptr))
 	{
 		LC_ERROR_DEV("Could not retrieve local processes from debugger. Error: 0x%X", result);
 		return false;
@@ -325,7 +325,7 @@ static bool AttachToProcess(const EnvDTE::DebuggerPtr& debugger, unsigned int pr
 		EnvDTE::ProcessPtr singleProcess = nullptr;
 		result = allProcesses->Item(variant_t(i + 1), &singleProcess);
 
-		if (FAILED(result) || (!singleProcess))
+		if (FAILED(result) || (singleProcess == nullptr))
 		{
 			LC_ERROR_DEV("Could not retrieve local process from debugger. Error: 0x%X", result);
 			continue;
@@ -370,7 +370,7 @@ static types::vector<EnvDTE::ThreadPtr> EnumerateThreads(const EnvDTE::DebuggerP
 
 	EnvDTE::ProgramPtr program = nullptr;
 	HRESULT result = debugger->get_CurrentProgram(&program);
-	if (FAILED(result) || (!program))
+	if (FAILED(result) || program == nullptr)
 	{
 		LC_ERROR_DEV("Could not retrieve current program from debugger. Error: 0x%X", result);
 		return threads;
@@ -378,7 +378,7 @@ static types::vector<EnvDTE::ThreadPtr> EnumerateThreads(const EnvDTE::DebuggerP
 
 	EnvDTE::ThreadsPtr allThreads = nullptr;
 	result = program->get_Threads(&allThreads);
-	if (FAILED(result) || (!allThreads))
+	if (FAILED(result) || allThreads == nullptr)
 	{
 		LC_ERROR_DEV("Could not retrieve running threads from debugger. Error: 0x%X", result);
 		return threads;
@@ -398,7 +398,7 @@ static types::vector<EnvDTE::ThreadPtr> EnumerateThreads(const EnvDTE::DebuggerP
 	{
 		EnvDTE::ThreadPtr singleThread = nullptr;
 		result = allThreads->Item(variant_t(i + 1), &singleThread);
-		if (FAILED(result) || (!singleThread))
+		if (FAILED(result) || (singleThread == nullptr))
 		{
 			LC_ERROR_DEV("Could not retrieve thread from debugger. Error: 0x%X", result);
 			continue;
