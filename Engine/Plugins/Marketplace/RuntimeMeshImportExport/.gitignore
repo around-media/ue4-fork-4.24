@@ -1,0 +1,4 @@
+# Include dlls and libs files for assimp as they are used as a dependency for the RuntimeMeshImportExport plugin
+# The files under assimp/include/... are already managed by git because of the .gitignore at the root of the engine
+!Source/ThirdParty/assimp/**/*.dll
+!Source/ThirdParty/assimp/**/*.lib
