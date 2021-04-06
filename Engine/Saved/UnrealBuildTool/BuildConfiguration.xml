@@ -6,4 +6,9 @@
     <VCProjectFileGenerator>
         <Version>VisualStudio2019</Version>
     </VCProjectFileGenerator>
+    <SourceFileWorkingSet> 
+        <Provider>None</Provider> 
+        <RepositoryPath></RepositoryPath> 
+        <GitPath></GitPath> 
+    </SourceFileWorkingSet>
 </Configuration>
