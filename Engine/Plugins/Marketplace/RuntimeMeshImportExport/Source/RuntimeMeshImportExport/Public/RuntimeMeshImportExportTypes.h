@@ -166,6 +166,27 @@ struct FRuntimeMeshExportAsyncParam
     FRuntimeMeshExportParam param;
 };
 
+//AMCHANGE_begin
+//#AMCHANGE This new struct is needed to be able to export materials with the mesh
+
+/**
+ * Material that can be exported with a mesh
+ */
+USTRUCT(BlueprintType)
+struct FExportableMeshMaterial
+{
+	GENERATED_BODY()
+
+	/**
+	 * Path of the diffuse texture used by the material
+	 * The path is relative to the location of the 3D file
+	 * Should include the extension of the file.
+	 */
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	FString diffuseTextureRelativePath;
+};
+// AMCHANGE_end
+
 
 USTRUCT(BlueprintType)
 struct FExportableMeshSection
@@ -178,6 +199,13 @@ struct FExportableMeshSection
     FTransform meshToWorld;
     UPROPERTY(BlueprintReadWrite, Category = "Default")
     UMaterialInterface* material;
+	//AMCHANGE_begin
+	/**
+	 * Material that will be exported with the mesh
+	 */
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	FExportableMeshMaterial materialToExport;
+	//AMCHANGE_end
     UPROPERTY(BlueprintReadWrite, Category = "Default")
     TArray<FVector> vertices;
     UPROPERTY(BlueprintReadWrite, Category = "Default")
