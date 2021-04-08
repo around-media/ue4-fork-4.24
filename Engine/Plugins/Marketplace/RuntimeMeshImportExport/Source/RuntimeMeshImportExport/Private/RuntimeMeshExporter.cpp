@@ -19,7 +19,12 @@
 #include "Misc/Paths.h"
 #include "AssimpProgressHandler.h"
 
-const unsigned int exportFlags = aiPostProcessSteps::aiProcess_MakeLeftHanded;
+//AMCHANGE_begin
+//#AMCHANGE Added 'aiProcess_FlipUVs' to the exportFlags. This is needed because we use he 'aiProcess_FlipUVs' flag on import, so we have to undo that change on export.
+//			This is an assumption that the code using this plugin will always use 'aiProcess_FlipUVs' on import, we could improve this change by allowing the user of this
+//			plugin to decide if they want to flip the UVs or not.
+const unsigned int exportFlags = aiPostProcessSteps::aiProcess_MakeLeftHanded | aiPostProcessSteps::aiProcess_FlipUVs;
+//AMCHANGE_end
 
 URuntimeMeshExporter::URuntimeMeshExporter()
 {

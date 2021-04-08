@@ -371,7 +371,7 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
                     {
                         materialName = TCHAR_TO_ANSI(*section.material->GetName());
                     }
-                    else
+					else
                     {
                         materialName = "Unknown";
                     }
@@ -387,6 +387,16 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
                     const float shininess = 0.f;
                     material->AddProperty(&shininess, 1, AI_MATKEY_SHININESS);
                 }
+				// AMCHANGE_begin
+				// Set the diffuse texture of the material
+				{
+					if (!section.materialToExport.diffuseTextureRelativePath.IsEmpty())
+					{
+						const aiString diffuseTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.diffuseTextureRelativePath));
+						material->AddProperty(&diffuseTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
+					}
+				}
+				// AMCHANGE_end
             }
             else
             {
