@@ -198,7 +198,7 @@ struct FExportableMeshSection
     UPROPERTY(BlueprintReadWrite, Category = "Default")
     FTransform meshToWorld;
     UPROPERTY(BlueprintReadWrite, Category = "Default")
-    UMaterialInterface* material;
+    UMaterialInterface* material = nullptr;
 	//AMCHANGE_begin
 	/**
 	 * Material that will be exported with the mesh
