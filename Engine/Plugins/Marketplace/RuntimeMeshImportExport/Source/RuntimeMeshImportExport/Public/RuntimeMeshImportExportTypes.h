@@ -178,6 +178,13 @@ struct FExportableMeshMaterial
 	GENERATED_BODY()
 
 	/**
+	 * Name of the material that will be used by this mesh.
+	 * It should be unique amongst all materials in the scene otherwise the mesh might use the other material with the same name.
+	 */
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	FString uniqueName;
+	
+	/**
 	 * Path of the diffuse texture used by the material
 	 * The path is relative to the location of the 3D file
 	 * Should include the extension of the file.

@@ -356,20 +356,37 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
             // mesh->mName = TODO do we need a name for the meshes?! Problem with merged meshes
             mesh->mPrimitiveTypes = aiPrimitiveType_TRIANGLE;
 
-            // Add the material to the mesh
-            const int32 foundMaterialIndex = scene.uniqueMaterials.Find(section.material);
+			// Add the material to the mesh
+			//AMCHANGE_begin Use material name instead of material ptrs
+			//#AMCHANGE Change the way to identify which materials from the scene are used by a mesh.
+			// Before, the code was using the memory address of the materials to know if a mesh was reusing a material from the scene or not.
+			// It was also using the 'GetName()' of the UMaterialInterface to set the AI_MATKEY_NAME attribute of the materials in Assimp.
+			//
+			// Now, it is instead relying on a name that is passed in the 'materialToExport' struct within 'FExportableMeshSection'.
+        	// This change allows the code using the exporter to define the names that the materials should receive in the 3D file.
+
+			int32 foundMaterialIndex = INDEX_NONE;
+			FString materialNameForCurrentMesh = section.materialToExport.uniqueName;
+			if (!materialNameForCurrentMesh.IsEmpty())
+			{
+				foundMaterialIndex = scene.materials.IndexOfByPredicate([materialNameForCurrentMesh](aiMaterial* material)
+				{
+					aiString nameOfMaterialInScene;
+					verifyf(AI_SUCCESS == material->Get(AI_MATKEY_NAME, nameOfMaterialInScene), TEXT("Material created in the scene to export should always have a name."));
+					return nameOfMaterialInScene == aiString(TCHAR_TO_UTF8(*materialNameForCurrentMesh));
+				});
+			}
+            
             if (foundMaterialIndex == INDEX_NONE)
             {
-                mesh->mMaterialIndex = scene.uniqueMaterials.Add(section.material);
                 aiMaterial* material = new aiMaterial();
-                scene.materials.Add(material);
-                check(scene.uniqueMaterials.Num() == scene.materials.Num())
+				mesh->mMaterialIndex = scene.materials.Add(material);
                 // Set the material name
                 {
                     aiString materialName;
-                    if (section.material)
-                    {
-                        materialName = TCHAR_TO_ANSI(*section.material->GetName());
+                    if (!materialNameForCurrentMesh.IsEmpty())
+                    {	
+                        materialName = TCHAR_TO_UTF8(*materialNameForCurrentMesh);
                     }
 					else
                     {
@@ -387,7 +404,6 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
                     const float shininess = 0.f;
                     material->AddProperty(&shininess, 1, AI_MATKEY_SHININESS);
                 }
-				// AMCHANGE_begin
 				// Set the diffuse texture of the material
 				{
 					if (!section.materialToExport.diffuseTextureRelativePath.IsEmpty())
@@ -396,7 +412,7 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						material->AddProperty(&diffuseTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
 					}
 				}
-				// AMCHANGE_end
+				//AMCHANGE_end
             }
             else
             {
