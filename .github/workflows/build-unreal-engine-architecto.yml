@@ -1,0 +1,26 @@
+name: Start jenkins job to build Unreal Engine for Architecto
+
+on:
+  # Triggers the workflow on push to the 4.24-architecto branch. 
+  # This is the branch where the live code of the custom Unreal Engine used by Architecto is
+  # Everytime there are changes to this branch, we want to build a new version of the Unreal Engine
+  push:
+    branches:
+    - 4.24-architecto
+
+jobs:
+  # Start the jenkins job "engin-build-pipeline" with user "alfred"
+  # This will build the Unreal Engine and store the build on the cloud
+  curl:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: jenkins
+      uses: enflo/jenkins-action@master
+      with:
+        url: "http://jenkins.vr-tual.media:8080"
+        user: "alfred"
+        token: ${{ secrets.JENKINS_TOKEN }}
+        job: "/job/engine-build-pipeline"
+        # Use empty "Engine archive name" to let the job use the default name
+        parameters: "Engine%20archive%20name="
