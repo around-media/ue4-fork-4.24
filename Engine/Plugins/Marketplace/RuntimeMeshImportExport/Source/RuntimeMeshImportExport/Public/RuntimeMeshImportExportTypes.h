@@ -191,6 +191,14 @@ struct FExportableMeshMaterial
 	 */
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString diffuseTextureRelativePath;
+
+	/**
+	* Path of the normals texture used by the material
+	* The path is relative to the location of the 3D file
+	* Should include the extension of the file.
+	*/
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	FString normalsTextureRelativePath;
 };
 // AMCHANGE_end
 

@@ -412,6 +412,14 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						material->AddProperty(&diffuseTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
 					}
 				}
+            	// Set the normals texture of the material
+                {
+	                if (!section.materialToExport.normalsTextureRelativePath.IsEmpty())
+	                {
+						const aiString normalsTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.normalsTextureRelativePath));
+						material->AddProperty(&normalsTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0));
+	                }
+                }
 				//AMCHANGE_end
             }
             else
