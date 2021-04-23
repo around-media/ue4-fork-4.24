@@ -199,6 +199,12 @@ struct FExportableMeshMaterial
 	*/
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString normalsTextureRelativePath;
+
+	/**
+	 * Opacity of the material. 1.0 means fully opaque while 0.0 means fully transparent.
+	 */
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	float opacity = 1.f;
 };
 // AMCHANGE_end
 
