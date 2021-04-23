@@ -420,6 +420,14 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						material->AddProperty(&normalsTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0));
 	                }
                 }
+            	// Set the opacity of the material (only if it is not 1.0, which means it  is fully opaque)
+                {
+					float opacity = section.materialToExport.opacity;
+					if (opacity < 1.0)
+					{
+						material->AddProperty(&opacity, 1, AI_MATKEY_OPACITY);
+					}
+                }
 				//AMCHANGE_end
             }
             else
