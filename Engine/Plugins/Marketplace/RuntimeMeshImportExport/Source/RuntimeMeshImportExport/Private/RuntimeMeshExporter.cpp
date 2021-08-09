@@ -23,7 +23,22 @@
 //#AMCHANGE Added 'aiProcess_FlipUVs' to the exportFlags. This is needed because we use he 'aiProcess_FlipUVs' flag on import, so we have to undo that change on export.
 //			This is an assumption that the code using this plugin will always use 'aiProcess_FlipUVs' on import, we could improve this change by allowing the user of this
 //			plugin to decide if they want to flip the UVs or not.
-const unsigned int exportFlags = aiPostProcessSteps::aiProcess_MakeLeftHanded | aiPostProcessSteps::aiProcess_FlipUVs;
+//
+//			Also changed the export flag from a constant to a function to allow the flags to change depending on the file format of the export
+unsigned int GetExportFlags(const FString& iExportFormatId)
+{
+	unsigned int result = aiPostProcessSteps::aiProcess_MakeLeftHanded;
+
+	// There is a bug in assimp that causes the gltf export to not flip the UVs like the other file formats.
+	// In order to obtain the same result as other file formats, we keep the UVs in their current format
+	// https://github.com/assimp/assimp/issues/2849
+	if (!iExportFormatId.Equals(TEXT("gltf2")))
+	{
+		result |= aiPostProcessSteps::aiProcess_FlipUVs;
+	}
+
+	return result;
+}
 //AMCHANGE_end
 
 URuntimeMeshExporter::URuntimeMeshExporter()
@@ -146,7 +161,10 @@ void URuntimeMeshExporter::Export(const FRuntimeMeshExportParam& param, FRuntime
     double duration = 0.f;
     {
         FScopedDurationTimer timer(duration);
-        aiExporterReturn = exporter.Export(&sceneRef, TCHAR_TO_ANSI(*param.formatId), TCHAR_TO_ANSI(*param.file), exportFlags);
+		//AMCHANGE_begin
+		//#AMCHANGE Use GetExportFlags instead of the exportFlags constant 
+        aiExporterReturn = exporter.Export(&sceneRef, TCHAR_TO_ANSI(*param.formatId), TCHAR_TO_ANSI(*param.file), GetExportFlags(param.formatId));
+		//AMCHANGE_end
     }
     sceneRef.WriteToLogWithNewLine(FString::Printf(TEXT("End export scene. Duration: %.3fs"), duration));
     //}
@@ -286,7 +304,11 @@ void URuntimeMeshExporter::Export_Async_AnyThread(const FRuntimeMeshExportParam 
     double duration = 0.f;
     {
         FScopedDurationTimer timer(duration);
-        aiExporterReturn = exporter.Export(scene, TCHAR_TO_ANSI(*param.formatId), TCHAR_TO_ANSI(*param.file), exportFlags);
+		//AMCHANGE_begin
+		//#AMCHANGE Use GetExportFlags instead of the exportFlags constant
+		aiExporterReturn = exporter.Export(scene, TCHAR_TO_ANSI(*param.formatId), TCHAR_TO_ANSI(*param.file), GetExportFlags(param.formatId));
+		//AMCHANGE_end
+        
     }
     exporter.SetProgressHandler(nullptr);
     sceneRef.WriteToLogWithNewLine(FString::Printf(TEXT("End export scene. Duration: %.3fs"), duration));
