@@ -193,13 +193,21 @@ struct FExportableMeshMaterial
 	FString diffuseTextureRelativePath;
 
 	/**
+	* Path of the metalness texture used by the material
+	* The path is relative to the location of the 3D file
+	* Should include the extension of the file.
+	*/
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	FString metalnessTextureRelativePath;
+	
+	/**
 	* Path of the normals texture used by the material
 	* The path is relative to the location of the 3D file
 	* Should include the extension of the file.
 	*/
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString normalsTextureRelativePath;
-
+	
 	/**
 	 * Opacity of the material. 1.0 means fully opaque while 0.0 means fully transparent.
 	 */
