@@ -412,6 +412,14 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						material->AddProperty(&diffuseTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
 					}
 				}
+				// Set the metalness texture of the material
+				{
+					if (!section.materialToExport.metalnessTextureRelativePath.IsEmpty())
+					{
+						const aiString metalnessTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.metalnessTextureRelativePath));
+						material->AddProperty(&metalnessTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_METALNESS, 0));
+					}
+				}
             	// Set the normals texture of the material
                 {
 	                if (!section.materialToExport.normalsTextureRelativePath.IsEmpty())
@@ -420,7 +428,8 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						material->AddProperty(&normalsTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0));
 	                }
                 }
-            	// Set the opacity of the material (only if it is not 1.0, which means it  is fully opaque)
+				
+				// Set the opacity of the material (only if it is not 1.0, which means it  is fully opaque)
                 {
 					float opacity = section.materialToExport.opacity;
 					if (opacity < 1.0)
