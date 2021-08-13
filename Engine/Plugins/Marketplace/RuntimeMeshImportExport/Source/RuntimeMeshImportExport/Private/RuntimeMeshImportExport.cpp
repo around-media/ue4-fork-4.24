@@ -38,8 +38,17 @@ void FRuntimeMeshImportExportModule::StartupModule()
 	{
 		RMIE_LOG(Fatal, "Missing file: %s", *dllFile);
 	}
-		
+
+	//AMCHANGE_begin
+	//#AMCHANGE Add validation to detect when the assimp dll failed to load
+	//			One of the reason making this fail is the error 206: the path to the dll is too long. It can be other causes though.
+	//			In all cases, it's better to detect this problem early than to crash when trying to use the dll.
 	dllHandle_assimp = FPlatformProcess::GetDllHandle(*dllFile);
+	if (!dllHandle_assimp)
+	{
+		RMIE_LOG(Fatal, "Failed to load the required '%s' dll. The application will now close.", *dllFileName);
+	}
+	//AMCHANGE_end
 }
 
 void FRuntimeMeshImportExportModule::ShutdownModule()
