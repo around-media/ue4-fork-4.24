@@ -426,7 +426,8 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 					if (!section.materialToExport.gltfMetallicRoughnessTextureRelativePath.IsEmpty())
 					{
 						const aiString gltfMetallicRoughnessTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.gltfMetallicRoughnessTextureRelativePath));
-						material->AddProperty(&gltfMetallicRoughnessTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_UNKNOWN, 0));
+						const aiTextureType aiTextureType_GLTF_METALLICROUGHNESS_TEXTURE = aiTextureType_UNKNOWN;
+						material->AddProperty(&gltfMetallicRoughnessTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_GLTF_METALLICROUGHNESS_TEXTURE, 0));
 					}
 
 					float metallicFactor = section.materialToExport.metallicFactor;
