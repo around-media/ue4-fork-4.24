@@ -4,6 +4,7 @@
 
 #include "AssimpCustom.h"
 #include "Async/Async.h"
+#include "assimp/pbrmaterial.h"
 #include "RuntimeMeshImportExport.h"
 #include "RuntimeMeshImportExportLibrary.h"
 #include "RuntimeMeshImportExportTypes.h"
@@ -428,6 +429,18 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						material->AddProperty(&normalsTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0));
 	                }
                 }
+				// Set metallicRoughness map
+				{
+					if (!section.materialToExport.gltfMetallicRoughnessTextureRelativePath.IsEmpty())
+					{
+						const aiString gltfMetallicRoughnessTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.gltfMetallicRoughnessTextureRelativePath));
+						material->AddProperty(&gltfMetallicRoughnessTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_UNKNOWN, 0));
+					}
+
+					float metallicFactor = section.materialToExport.metallicFactor;
+					material->AddProperty(&metallicFactor, 1, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR);
+				}
+
 				
 				// Set the opacity of the material (only if it is not 1.0, which means it  is fully opaque)
                 {
