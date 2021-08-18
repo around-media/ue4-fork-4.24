@@ -201,6 +201,20 @@ struct FExportableMeshMaterial
 	FString metalnessTextureRelativePath;
 	
 	/**
+	 * Factor of metalness 0 is non metal, 1 is metal
+	 */
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	float metallicFactor = 1.0f;
+
+	/**
+	* Path of the metallic-roughness texture used by the material
+	* The path is relative to the location of the 3D file
+	* Should include the extension of the file.
+	*/
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	FString gltfMetallicRoughnessTextureRelativePath;
+
+	/**
 	* Path of the normals texture used by the material
 	* The path is relative to the location of the 3D file
 	* Should include the extension of the file.
