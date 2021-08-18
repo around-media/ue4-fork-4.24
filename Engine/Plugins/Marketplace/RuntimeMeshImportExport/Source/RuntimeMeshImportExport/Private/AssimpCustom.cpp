@@ -413,14 +413,6 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						material->AddProperty(&diffuseTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
 					}
 				}
-				// Set the metalness texture of the material
-				{
-					if (!section.materialToExport.metalnessTextureRelativePath.IsEmpty())
-					{
-						const aiString metalnessTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.metalnessTextureRelativePath));
-						material->AddProperty(&metalnessTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_METALNESS, 0));
-					}
-				}
             	// Set the normals texture of the material
                 {
 	                if (!section.materialToExport.normalsTextureRelativePath.IsEmpty())
