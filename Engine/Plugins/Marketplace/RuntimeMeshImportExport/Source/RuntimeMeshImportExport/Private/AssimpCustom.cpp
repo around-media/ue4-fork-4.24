@@ -395,9 +395,9 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
                     }
                     material->AddProperty(&materialName, AI_MATKEY_NAME);
                 }
-                // Set the material to be two sided
+                // Set the material to be two sided or not
                 {
-                    const int bTwoSided = true;
+                    const bool bTwoSided = section.materialToExport.isDoubleSided;
                     material->AddProperty(&bTwoSided, 1, AI_MATKEY_TWOSIDED);
                 }
                 // Shininess (only a FIX for gltf.v1 crash cause shininess not available)

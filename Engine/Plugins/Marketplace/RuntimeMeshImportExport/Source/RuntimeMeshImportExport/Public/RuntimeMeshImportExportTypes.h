@@ -227,6 +227,10 @@ struct FExportableMeshMaterial
 	 */
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	float opacity = 1.f;
+
+	/** Double sidedness of the material. */
+	UPROPERTY()
+	bool isDoubleSided = false;
 };
 // AMCHANGE_end
 
