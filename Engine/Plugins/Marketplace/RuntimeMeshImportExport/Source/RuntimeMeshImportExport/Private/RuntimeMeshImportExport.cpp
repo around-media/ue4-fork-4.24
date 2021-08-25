@@ -20,7 +20,6 @@ void FRuntimeMeshImportExportModule::StartupModule()
 	//AMCHANGE_begin
 	//#AMCHANGE Always use the release DLLs, not all testers and QA always have the debug dll's required to load the debug assimp dll.
 	configString = "Release";
-	//AMCHANGE_end
 
 #if PLATFORM_WINDOWS
 #if PLATFORM_32BITS
@@ -32,7 +31,9 @@ void FRuntimeMeshImportExportModule::StartupModule()
 	FString platformString = "Mac";
 #endif
 
-	FString dllFileName = FString(TEXT("assimp-vc141-mt")) + (UE_BUILD_SHIPPING ? TEXT("") : TEXT("d")) + TEXT(".dll");
+	FString dllFileName = FString(TEXT("assimp-vc141-mt"))+ TEXT(".dll");
+	//AMCHANGE_end
+
 	FString dllFile = FPaths::Combine(PluginBaseDir, FString("Source/ThirdParty/assimp/bin"), platformString, configString, dllFileName);
 	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*dllFile))
 	{
