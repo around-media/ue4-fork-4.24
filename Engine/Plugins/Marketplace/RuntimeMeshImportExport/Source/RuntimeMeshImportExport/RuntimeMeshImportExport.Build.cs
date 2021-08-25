@@ -91,10 +91,13 @@ namespace UnrealBuildTool.Rules
             if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
             {
                 string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "x64" : "Win32";
-                string ConfigurationString = (Target.Configuration == UnrealTargetConfiguration.Shipping) ? "Release" : "Debug";
-                string FileNameNoExt = "assimp-vc141-mt" + (Target.Configuration == UnrealTargetConfiguration.Shipping ? "" : "d");
+				//AMCHANGE_begin
+				//#AMCHANGE Always use the release DLLs, not all testers and QA always have the debug dll's required to load the debug assimp dll.
+				string ConfigurationString = "Release";
+				string FileNameNoExt = "assimp-vc141-mt";
+				//AMCHANGE_end
 
-                string libFile = Path.Combine(ThirdPartyPath, "assimp/lib", PlatformString, ConfigurationString, FileNameNoExt + ".lib");
+				string libFile = Path.Combine(ThirdPartyPath, "assimp/lib", PlatformString, ConfigurationString, FileNameNoExt + ".lib");
                 if(!File.Exists(libFile))
                 {
                     //Log.TraceInformation("Missing file: " + libFile);
