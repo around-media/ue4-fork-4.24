@@ -16,11 +16,11 @@ void FRuntimeMeshImportExportModule::StartupModule()
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	FString PluginBaseDir = IPluginManager::Get().FindPlugin("RuntimeMeshImportExport")->GetBaseDir();
 	FString configString;
-#if UE_BUILD_SHIPPING
+
+	//AMCHANGE_begin
+	//#AMCHANGE Always use the release DLLs, not all testers and QA always have all the dev dependencies
 	configString = "Release";
-#else 
-	configString = "Debug";
-#endif
+	//AMCHANGE_end
 
 #if PLATFORM_WINDOWS
 #if PLATFORM_32BITS
