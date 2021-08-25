@@ -18,7 +18,7 @@ void FRuntimeMeshImportExportModule::StartupModule()
 	FString configString;
 
 	//AMCHANGE_begin
-	//#AMCHANGE Always use the release DLLs, not all testers and QA always have all the dev dependencies
+	//#AMCHANGE Always use the release DLLs, not all testers and QA always have the debug dll's required to load the debug assimp dll.
 	configString = "Release";
 	//AMCHANGE_end
 
