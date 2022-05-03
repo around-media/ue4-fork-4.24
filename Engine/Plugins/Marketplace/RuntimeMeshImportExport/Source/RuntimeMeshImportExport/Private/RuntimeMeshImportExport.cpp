@@ -34,11 +34,14 @@ void FRuntimeMeshImportExportModule::StartupModule()
 	FString dllFileName = FString(TEXT("assimp-vc141-mt"))+ TEXT(".dll");
 	//AMCHANGE_end
 
+	//AMCHANGE_begin
+	//#AMCHANGE Added clarification to this error message.
 	FString dllFile = FPaths::Combine(PluginBaseDir, FString("Source/ThirdParty/assimp/bin"), platformString, configString, dllFileName);
 	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*dllFile))
 	{
-		RMIE_LOG(Fatal, "Missing file: %s", *dllFile);
+		RMIE_LOG(Fatal, "Missing file: %s. Path name may be too long." , *dllFile);
 	}
+	//AMCHANGE_end
 
 	//AMCHANGE_begin
 	//#AMCHANGE Add validation to detect when the assimp dll failed to load
@@ -47,7 +50,7 @@ void FRuntimeMeshImportExportModule::StartupModule()
 	dllHandle_assimp = FPlatformProcess::GetDllHandle(*dllFile);
 	if (!dllHandle_assimp)
 	{
-		RMIE_LOG(Fatal, "Failed to load the required '%s' dll. The application will now close.", *dllFileName);
+		RMIE_LOG(Fatal, "Failed to load the required '%s' dll. Path name may be too long.", *dllFileName);
 	}
 	//AMCHANGE_end
 }
