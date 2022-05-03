@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TempStorageFileList xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <LocalFiles>
+    <LocalFile>Engine/Binaries/Win64/Android/UE4Editor-AndroidDeviceDetection.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/Android/UE4Editor-AndroidPlatformEditor.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/Android/UE4Editor-AndroidRuntimeSettings.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/Android/UE4Editor-AndroidTargetPlatform.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/IOS/UE4Editor-IOSPlatformEditor.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/IOS/UE4Editor-IOSRuntimeSettings.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/IOS/UE4Editor-IOSTargetPlatform.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/IOS/UE4Editor-TVOSTargetPlatform.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/Lumin/UE4Editor-LuminPlatformEditor.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/Lumin/UE4Editor-LuminRuntimeSettings.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/Lumin/UE4Editor-LuminTargetPlatform.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/XXX/UE4Editor-XXXTargetPlatform.pdb</LocalFile>
+    <LocalFile>Engine/Plugins/Online/Android/OnlineSubsystemGameCircle/Binaries/Win64/Android/UE4Editor-GameCircleRuntimeSettings.pdb</LocalFile>
+  </LocalFiles>
+  <ExternalFiles />
+  <Blocks>
+    <Block NodeName="Compile UE4Editor Win64" OutputName="UE4Editor Win64+UE4Editor Win64 Unstripped" />
+  </Blocks>
+</TempStorageFileList>

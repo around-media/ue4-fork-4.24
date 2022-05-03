@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TempStorageFileList xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <LocalFiles>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool.exe</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool.modules</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool.target</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool.version</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-BuildSettings.dll</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-BuildSettings.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-Core.dll</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-Core.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-CoreUObject.dll</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-CoreUObject.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-Json.dll</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-Json.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-Projects.dll</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-Projects.pdb</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-TraceLog.dll</LocalFile>
+    <LocalFile>Engine/Binaries/Win64/UnrealHeaderTool-TraceLog.pdb</LocalFile>
+    <LocalFile>Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/BuildSettings/UnrealHeaderTool-BuildSettings.lib</LocalFile>
+    <LocalFile>Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/Core/UnrealHeaderTool-Core.lib</LocalFile>
+    <LocalFile>Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/CoreUObject/UnrealHeaderTool-CoreUObject.lib</LocalFile>
+    <LocalFile>Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/Json/UnrealHeaderTool-Json.lib</LocalFile>
+    <LocalFile>Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/Projects/UnrealHeaderTool-Projects.lib</LocalFile>
+    <LocalFile>Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/TraceLog/UnrealHeaderTool-TraceLog.lib</LocalFile>
+    <LocalFile>Engine/Intermediate/DependencyLists/UnrealHeaderTool/Development/Win64/DependencyList-AllModules.txt</LocalFile>
+    <LocalFile>Engine/Plugins/ScriptPlugin/Binaries/Win64/UnrealHeaderTool.modules</LocalFile>
+    <LocalFile>Engine/Plugins/ScriptPlugin/Binaries/Win64/UnrealHeaderTool-ScriptGeneratorPlugin.dll</LocalFile>
+    <LocalFile>Engine/Plugins/ScriptPlugin/Binaries/Win64/UnrealHeaderTool-ScriptGeneratorPlugin.pdb</LocalFile>
+    <LocalFile>Engine/Plugins/ScriptPlugin/Intermediate/Build/Win64/UnrealHeaderTool/Development/ScriptGeneratorPlugin/UnrealHeaderTool-ScriptGeneratorPlugin.lib</LocalFile>
+  </LocalFiles>
+  <ExternalFiles />
+  <Blocks>
+    <Block NodeName="Compile UnrealHeaderTool Win64" OutputName="" />
+  </Blocks>
+</TempStorageFileList>

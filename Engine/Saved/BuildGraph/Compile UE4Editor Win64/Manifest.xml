@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TempStorageManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Files>
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/Android/UE4Editor-AndroidDeviceDetection.pdb" LastWriteTimeUtcTicks="637159728898540457" Length="29995008" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/Android/UE4Editor-AndroidPlatformEditor.pdb" LastWriteTimeUtcTicks="637159730041702447" Length="32067584" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/Android/UE4Editor-AndroidRuntimeSettings.pdb" LastWriteTimeUtcTicks="637159728935322860" Length="29904896" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/Android/UE4Editor-AndroidTargetPlatform.pdb" LastWriteTimeUtcTicks="637159728934143429" Length="30380032" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/IOS/UE4Editor-IOSPlatformEditor.pdb" LastWriteTimeUtcTicks="637159730001621627" Length="35196928" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/IOS/UE4Editor-IOSRuntimeSettings.pdb" LastWriteTimeUtcTicks="637159728970765912" Length="29700096" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/IOS/UE4Editor-IOSTargetPlatform.pdb" LastWriteTimeUtcTicks="637159729034925220" Length="30650368" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/IOS/UE4Editor-TVOSTargetPlatform.pdb" LastWriteTimeUtcTicks="637159729150158542" Length="29306880" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/Lumin/UE4Editor-LuminPlatformEditor.pdb" LastWriteTimeUtcTicks="637159729648432658" Length="29110272" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/Lumin/UE4Editor-LuminRuntimeSettings.pdb" LastWriteTimeUtcTicks="637159729038193656" Length="29593600" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/Lumin/UE4Editor-LuminTargetPlatform.pdb" LastWriteTimeUtcTicks="637159729035994711" Length="29716480" />
+    <File RelativePath="Engine/Saved/Engine/Binaries/Win64/XXX/UE4Editor-XXXTargetPlatform.pdb" LastWriteTimeUtcTicks="637159729619896291" Length="29585408" />
+    <File RelativePath="Engine/Saved/Engine/Plugins/Online/Android/OnlineSubsystemGameCircle/Binaries/Win64/Android/UE4Editor-GameCircleRuntimeSettings.pdb" LastWriteTimeUtcTicks="637159736366092772" Length="29306880" />
+  </Files>
+</TempStorageManifest>

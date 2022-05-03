@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TempStorageManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Files>
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool.exe" LastWriteTimeUtcTicks="637159708711773723" Length="1279488" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool.modules" LastWriteTimeUtcTicks="637159708715821788" Length="366" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool.pdb" LastWriteTimeUtcTicks="637159708711873679" Length="12636160" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool.target" LastWriteTimeUtcTicks="637172786473913463" Length="2944" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool.version" LastWriteTimeUtcTicks="637159708715891745" Length="285" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-BuildSettings.dll" LastWriteTimeUtcTicks="637159112901713177" Length="83456" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-BuildSettings.pdb" LastWriteTimeUtcTicks="637159112901753157" Length="299008" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-Core.dll" LastWriteTimeUtcTicks="637159708618388383" Length="7251968" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-Core.pdb" LastWriteTimeUtcTicks="637159708618688244" Length="55537664" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-CoreUObject.dll" LastWriteTimeUtcTicks="637159708713492902" Length="5502464" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-CoreUObject.pdb" LastWriteTimeUtcTicks="637159708713732808" Length="42405888" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-Json.dll" LastWriteTimeUtcTicks="637159708614200393" Length="272896" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-Json.pdb" LastWriteTimeUtcTicks="637159708614260368" Length="4689920" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-Projects.dll" LastWriteTimeUtcTicks="637159708614440275" Length="433152" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-Projects.pdb" LastWriteTimeUtcTicks="637159708614570216" Length="6189056" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-TraceLog.dll" LastWriteTimeUtcTicks="637159708267721333" Length="82944" />
+    <File RelativePath="Engine/Binaries/Win64/UnrealHeaderTool-TraceLog.pdb" LastWriteTimeUtcTicks="637159708267741335" Length="323584" />
+    <File RelativePath="Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/BuildSettings/UnrealHeaderTool-BuildSettings.lib" LastWriteTimeUtcTicks="637159112901483286" Length="4340" />
+    <File RelativePath="Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/Core/UnrealHeaderTool-Core.lib" LastWriteTimeUtcTicks="637159708612271315" Length="2823076" />
+    <File RelativePath="Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/CoreUObject/UnrealHeaderTool-CoreUObject.lib" LastWriteTimeUtcTicks="637159708708945077" Length="2186076" />
+    <File RelativePath="Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/Json/UnrealHeaderTool-Json.lib" LastWriteTimeUtcTicks="637159708381741584" Length="56460" />
+    <File RelativePath="Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/Projects/UnrealHeaderTool-Projects.lib" LastWriteTimeUtcTicks="637159708328067240" Length="50578" />
+    <File RelativePath="Engine/Intermediate/Build/Win64/UnrealHeaderTool/Development/TraceLog/UnrealHeaderTool-TraceLog.lib" LastWriteTimeUtcTicks="637159708267301538" Length="2046" />
+    <File RelativePath="Engine/Intermediate/DependencyLists/UnrealHeaderTool/Development/Win64/DependencyList-AllModules.txt" LastWriteTimeUtcTicks="637172786401877845" Length="11921" />
+    <File RelativePath="Engine/Plugins/ScriptPlugin/Binaries/Win64/UnrealHeaderTool.modules" LastWriteTimeUtcTicks="637172786473693570" Length="152" />
+    <File RelativePath="Engine/Plugins/ScriptPlugin/Binaries/Win64/UnrealHeaderTool-ScriptGeneratorPlugin.dll" LastWriteTimeUtcTicks="637172786470215227" Length="176128" />
+    <File RelativePath="Engine/Plugins/ScriptPlugin/Binaries/Win64/UnrealHeaderTool-ScriptGeneratorPlugin.pdb" LastWriteTimeUtcTicks="637172786470475107" Length="4820992" />
+    <File RelativePath="Engine/Plugins/ScriptPlugin/Intermediate/Build/Win64/UnrealHeaderTool/Development/ScriptGeneratorPlugin/UnrealHeaderTool-ScriptGeneratorPlugin.lib" LastWriteTimeUtcTicks="637172786463418472" Length="2218" />
+  </Files>
+</TempStorageManifest>

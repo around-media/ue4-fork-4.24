@@ -16,7 +16,7 @@ struct aiExportFormatDesc;
 
 DECLARE_DELEGATE(FRuntimeImportExportGameThreadDone);
 DECLARE_DYNAMIC_DELEGATE(FRuntimeImportExportGameThreadDoneDyn);
-DECLARE_DELEGATE_TwoParams(FRuntimeExportFinished, const FRuntimeMeshExportResult /*result*/, const FString& /*iErrorMessage*/);
+DECLARE_DELEGATE_OneParam(FRuntimeExportFinished, const FRuntimeMeshExportResult /*result*/);
 DECLARE_DELEGATE_OneParam(FRuntimeImportFinished, const FRuntimeMeshImportResult /*result*/);
 
 UENUM(BlueprintType)
