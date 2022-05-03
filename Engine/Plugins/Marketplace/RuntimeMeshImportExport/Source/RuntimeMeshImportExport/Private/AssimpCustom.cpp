@@ -409,8 +409,14 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 				{
 					if (!section.materialToExport.diffuseTextureRelativePath.IsEmpty())
 					{
-						const aiString diffuseTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.diffuseTextureRelativePath));
+						const aiString diffuseTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.diffuseTextureRelativePath));						
 						material->AddProperty(&diffuseTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0));
+					}
+					else
+					{
+						const FLinearColor color = section.materialToExport.diffuseSingleColor;
+						const aiColor3D diffuseColor(color.R, color.G, color.B);
+						material->AddProperty(&diffuseColor, 1, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR);
 					}
 				}
             	// Set the normals texture of the material
@@ -428,13 +434,20 @@ void FAssimpNode::CreateAssimpMeshesFromMeshData(FAssimpScene& scene, const FRun
 						const aiString gltfMetallicRoughnessTextureRelativePath(TCHAR_TO_UTF8(*section.materialToExport.gltfMetallicRoughnessTextureRelativePath));
 						const aiTextureType aiTextureType_GLTF_METALLICROUGHNESS_TEXTURE = aiTextureType_UNKNOWN;
 						material->AddProperty(&gltfMetallicRoughnessTextureRelativePath, AI_MATKEY_TEXTURE(aiTextureType_GLTF_METALLICROUGHNESS_TEXTURE, 0));
+						float metallicFactor = 1;
+						material->AddProperty(&metallicFactor, 1, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR);
+						float roughnessValue = 1;
+						material->AddProperty(&roughnessValue, 1, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR);
 					}
-
-					float metallicFactor = section.materialToExport.metallicFactor;
-					material->AddProperty(&metallicFactor, 1, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR);
+					else
+					{
+						float metallicFactor = section.materialToExport.metallicFactor / 255.f;
+						material->AddProperty(&metallicFactor, 1, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR);
+						float roughnessValue = section.materialToExport.roughnessSingleColor / 255.f;
+						material->AddProperty(&roughnessValue, 1, AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR);
+					}					
 				}
-
-				
+		
 				// Set the opacity of the material (only if it is not 1.0, which means it  is fully opaque)
                 {
 					float opacity = section.materialToExport.opacity;

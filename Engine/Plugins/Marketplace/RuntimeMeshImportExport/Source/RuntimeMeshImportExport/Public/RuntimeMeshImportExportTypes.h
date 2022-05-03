@@ -16,7 +16,7 @@ struct aiExportFormatDesc;
 
 DECLARE_DELEGATE(FRuntimeImportExportGameThreadDone);
 DECLARE_DYNAMIC_DELEGATE(FRuntimeImportExportGameThreadDoneDyn);
-DECLARE_DELEGATE_OneParam(FRuntimeExportFinished, const FRuntimeMeshExportResult /*result*/);
+DECLARE_DELEGATE_TwoParams(FRuntimeExportFinished, const FRuntimeMeshExportResult /*result*/, const FString& /*iErrorMessage*/);
 DECLARE_DELEGATE_OneParam(FRuntimeImportFinished, const FRuntimeMeshImportResult /*result*/);
 
 UENUM(BlueprintType)
@@ -177,58 +177,32 @@ struct FExportableMeshMaterial
 {
 	GENERATED_BODY()
 
-	/**
-	 * Name of the material that will be used by this mesh.
-	 * It should be unique amongst all materials in the scene otherwise the mesh might use the other material with the same name.
-	 */
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString uniqueName;
 	
-	/**
-	 * Path of the diffuse texture used by the material
-	 * The path is relative to the location of the 3D file
-	 * Should include the extension of the file.
-	 */
+	// All paths include extension
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString diffuseTextureRelativePath;
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	FColor diffuseSingleColor;
 
-	/**
-	* Path of the metalness texture used by the material
-	* The path is relative to the location of the 3D file
-	* Should include the extension of the file.
-	*/
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString metalnessTextureRelativePath;
-	
-	/**
-	 * Factor of metalness 0 is non metal, 1 is metal
-	 */
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	float metallicFactor = 1.0f;
 
-	/**
-	* Path of the metallic-roughness texture used by the material
-	* The path is relative to the location of the 3D file
-	* Should include the extension of the file.
-	*/
+	UPROPERTY(BlueprintReadWrite, Category = "Default")
+	float roughnessSingleColor = 1.f;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString gltfMetallicRoughnessTextureRelativePath;
 
-	/**
-	* Path of the normals texture used by the material
-	* The path is relative to the location of the 3D file
-	* Should include the extension of the file.
-	*/
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	FString normalsTextureRelativePath;
 	
-	/**
-	 * Opacity of the material. 1.0 means fully opaque while 0.0 means fully transparent.
-	 */
 	UPROPERTY(BlueprintReadWrite, Category = "Default")
 	float opacity = 1.f;
 
-	/** Double sidedness of the material. */
 	UPROPERTY()
 	bool isDoubleSided = false;
 };
