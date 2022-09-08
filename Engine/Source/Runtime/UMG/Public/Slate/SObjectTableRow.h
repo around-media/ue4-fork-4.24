@@ -262,9 +262,9 @@ public:
 						OwnerTable->Private_SignalSelectionChanged(ESelectInfo::OnMouseClick);
 
 						Reply = FReply::Handled();
-					}
-					else if (SelectionMode == ESelectionMode::SingleToggle || SelectionMode == ESelectionMode::Multi)
-					{
+					}//AMCHANGE_begin
+					else if (SelectionMode == ESelectionMode::SingleToggle || SelectionMode == ESelectionMode::Multi || SelectionMode == ESelectionMode::MultiToggle)
+					{//AMCHANGE_end
 						OwnerTable->Private_SetItemSelection(*MyItem, true, true);
 						OwnerTable->Private_SignalSelectionChanged(ESelectInfo::OnMouseClick);
 
@@ -315,8 +315,14 @@ public:
 				{
 					// New selections are handled on mouse down, deselection is handled on mouse up
 					const ItemType& MyItem = *OwnerTable->Private_ItemFromWidget(this);
-					if (!OwnerTable->Private_IsItemSelected(MyItem))
+					//AMCHANGE_begin
+					if (SelectionMode == ESelectionMode::MultiToggle)
 					{
+						OwnerTable->Private_SetItemSelection(MyItem, !OwnerTable->Private_IsItemSelected(MyItem), true);
+						bChangedSelectionOnMouseDown = true;
+					}
+					else if (!OwnerTable->Private_IsItemSelected(MyItem))
+					{//AMCHANGE_end
 						if (SelectionMode != ESelectionMode::Multi)
 						{
 							OwnerTable->Private_ClearSelection();

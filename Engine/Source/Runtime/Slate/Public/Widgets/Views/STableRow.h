@@ -450,7 +450,9 @@ public:
 							Reply = FReply::Handled().ReleaseMouseCapture();
 						}
 						break;
-
+						//AMCHANGE_begin
+					case ESelectionMode::MultiToggle:
+						//AMCHANGE_end
 					case ESelectionMode::Multi:
 						{
 							if ( !bChangedSelectionOnMouseDown && !MouseEvent.IsControlDown() && !MouseEvent.IsShiftDown() )
@@ -465,7 +467,10 @@ public:
 									// deselect everything but this item.
 
 									OwnerWidget->Private_ClearSelection();
-									OwnerWidget->Private_SetItemSelection( *MyItem, true, true );
+									//AMCHANGE_begin
+									if(GetSelectionMode() == ESelectionMode::Multi) OwnerWidget->Private_SetItemSelection( *MyItem, true, true );
+									else OwnerWidget->Private_SetItemSelection(*MyItem, OwnerWidget->Private_IsItemSelected(*MyItem), true);
+									//AMCHANGE_end
 									OwnerWidget->Private_SignalSelectionChanged(ESelectInfo::OnMouseClick);
 
 									Reply = FReply::Handled().ReleaseMouseCapture();
@@ -499,6 +504,9 @@ public:
 			{
 			case ESelectionMode::Single:
 			case ESelectionMode::SingleToggle:
+				//AMCHANGE_begin
+			case ESelectionMode::MultiToggle:
+				//AMCHANGE_end
 			case ESelectionMode::Multi:
 				{
 					// Only one item can be selected at a time
@@ -559,9 +567,9 @@ public:
 						OwnerWidget->Private_SignalSelectionChanged(ESelectInfo::OnMouseClick);
 
 						Reply = FReply::Handled();
-					}
-					else if (SelectionMode == ESelectionMode::SingleToggle || SelectionMode == ESelectionMode::Multi)
-					{
+					}//AMCHANGE_begin
+					else if (SelectionMode == ESelectionMode::SingleToggle || SelectionMode == ESelectionMode::Multi || SelectionMode == ESelectionMode::MultiToggle)
+					{//AMCHANGE_end
 						OwnerWidget->Private_SetItemSelection(*MyItem, true, true);
 						OwnerWidget->Private_SignalSelectionChanged(ESelectInfo::OnMouseClick);
 

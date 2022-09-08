@@ -350,8 +350,9 @@ public:
 					ItemType SelectorItemDereference( TListTypeTraits<ItemType>::NullableItemTypeConvertToItemType( SelectorItem ) );
 
 					// Deselect.
-					if( InKeyEvent.IsControlDown() || SelectionMode.Get() == ESelectionMode::SingleToggle )
-					{
+					//AMCHANGE_begin
+					if( InKeyEvent.IsControlDown() || SelectionMode.Get() == ESelectionMode::SingleToggle || SelectionMode.Get() == ESelectionMode::MultiToggle)
+					{//AMCHANGE_end
 						this->Private_SetItemSelection( SelectorItemDereference, !( this->Private_IsItemSelected( SelectorItemDereference ) ), true );
 						this->Private_SignalSelectionChanged( ESelectInfo::OnKeyPress );
 						bWasHandled = true;
@@ -382,8 +383,9 @@ public:
 					}
 				}
 				// Select all items
-				else if ( (!InKeyEvent.IsShiftDown() && !InKeyEvent.IsAltDown() && InKeyEvent.IsControlDown() && InKeyEvent.GetKey() == EKeys::A) && SelectionMode.Get() == ESelectionMode::Multi )
-				{
+				//AMCHANGE_begin
+				else if ( (!InKeyEvent.IsShiftDown() && !InKeyEvent.IsAltDown() && InKeyEvent.IsControlDown() && InKeyEvent.GetKey() == EKeys::A) && (SelectionMode.Get() == ESelectionMode::Multi || SelectionMode.Get() == ESelectionMode::MultiToggle))
+				{//AMCHANGE_end
 					this->Private_ClearSelection();
 
 					for ( int32 ItemIdx = 0; ItemIdx < ItemsSourceRef.Num(); ++ItemIdx )
@@ -1462,9 +1464,9 @@ public:
 			if (NewMode == ESelectionMode::None)
 			{
 				ClearSelection();
-			}
-			else if (PreviousMode == ESelectionMode::Multi)
-			{
+			}//AMCHANGE_begin
+			else if (PreviousMode == ESelectionMode::Multi || PreviousMode == ESelectionMode::MultiToggle)
+			{//AMCHANGE_end
 				// We've gone to a single-selection mode, so if we already had a single item selected, preserve it
 				if (SelectedItems.Num() == 1)
 				{
@@ -1885,8 +1887,9 @@ protected:
 			// Always request scroll into view, otherwise partially visible items will be selected - also do this before signaling selection for similar stomp-allowing reasons
 			Private_RequestNavigateToItem(ItemToSelect, InInputEvent.GetUserIndex());
 
-			if (CurrentSelectionMode == ESelectionMode::Multi && (InInputEvent.IsShiftDown() || InInputEvent.IsControlDown()))
-			{
+			//AMCHANGE_begin
+			if ((CurrentSelectionMode == ESelectionMode::Multi || CurrentSelectionMode == ESelectionMode::MultiToggle) && (InInputEvent.IsShiftDown() || InInputEvent.IsControlDown()))
+			{//AMCHANGE_end
 				// Range select.
 				if (InInputEvent.IsShiftDown())
 				{

@@ -24,7 +24,11 @@ namespace ESelectionMode
 		SingleToggle,
 
 		/** Multiple items can be selected at the same time. */
-		Multi
+		Multi,
+
+		//AMCHANGE_begin
+		MultiToggle
+		//AMCHANGE_end
 	};
 }
 
